@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>コース選択 - 席{{ seat }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>コース選択 - 席{{ seat }}</h1>
+    <div class="course-container">
+        {% for course_id, course_data in courses.items() %}
+        <div class="course-card">
+            <h2>{{ course_data.course_name }}</h2>
+            <p class="price">{{ "{:,}".format(course_data.price) }}円</p>
+            <p class="description">{{ course_data.description }}</p>
+            <div class="menu-items">
+                <h3>コース内容：</h3>
+                <ul>
+                {% if course_data.dishes_ is sequence %}
+                    {% for menu_item in course_data.dishes_ %}
+                        <li>{{ menu_item.name }} × {{ menu_item.quantity }}</li>
+                    {% endfor %}
+                {% endif %}
+                </ul>
+            </div>
+            <form class="course-form" onsubmit="return false;">
+                <input type="hidden" name="seat" value="{{ seat }}">
+                <input type="hidden" name="course_name" value="{{ course_id }}">
+                <button type="button" class="select-button" onclick="selectCourse(this.form)">このコースを選択</button>
+            </form>
+            <div class="error-message" style="display: none; color: red; margin-top: 10px;"></div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        async function selectCourse(form) {
+            const formData = new FormData(form);
+            const submitButton = form.querySelector('button');
+            const errorDiv = form.parentElement.querySelector('.error-message');
+            
+            try {
+                submitButton.disabled = true;
+                const response = await fetch('{{ url_for("set_course") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams(formData).toString()
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    errorDiv.textContent = data.error || 'コースの選択に失敗しました';
+                    errorDiv.style.display = 'block';
+                    submitButton.disabled = false;
+                }
+            } catch (error) {
+                errorDiv.textContent = 'エラーが発生しました';
+                errorDiv.style.display = 'block';
+                submitButton.disabled = false;
+            }
+        }
+
+        // タッチデバイスのサポートを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.select-button');
+            buttons.forEach(button => {
+                button.addEventListener('touchstart', function(e) {
+                    e.preventDefault(); // デフォルトのタッチ動作を防止
+                    this.click(); // クリックイベントを発火
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

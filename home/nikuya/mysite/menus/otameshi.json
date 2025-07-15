@@ -1,0 +1,141 @@
+{
+    "course_name": "お試しコース",
+    "price": 4500,
+    "description": "気軽に焼肉を楽しめるソフトドリンク飲み放題つきの焼肉食べ放題コース！※黒毛和牛は最初のつきだしのみです。注文はできません。",
+    "order_time": 80,
+    "seat_time": 20,
+    "dishes_": [
+        {
+            "id": "ot1",
+            "name": "牛バラ",
+            "name_en": "beef rib",
+            "quantity": 1
+        },
+        {
+            "id": "ot2",
+            "name": "肉屋の牛カルビ",
+            "name_en": "nikuya beef rib",
+            "quantity": 2
+        },
+        {
+            "id": "ot3",
+            "name": "牛ロース",
+            "name_en": "beef loin",
+            "quantity": 4
+        },
+        {
+            "id": "ot4",
+            "name": "大判牛ロース",
+            "name_en": "large beef loin",
+            "quantity": 1
+        },
+        {
+            "id": "ot5",
+            "name": "ハラミ",
+            "name_en": "beef skirt steaks",
+            "quantity": 4
+        },
+        {
+            "id": "ot6",
+            "name": "ハラミステーキ",
+            "name_en": "dynamic cut beef skirt steak",
+            "quantity": 1
+        },
+        {
+            "id": "ot7",
+            "name": "牛タン",
+            "name_en": "beef tongue",
+            "quantity": 4
+        },
+        {
+            "id": "ot8",
+            "name": "豚バラ",
+            "name_en": "pork belly",
+            "quantity": 1
+        },
+        {
+            "id": "ot9",
+            "name": "豚肩ロース",
+            "name_en": "pork shoulder",
+            "quantity": 1
+        },
+        {
+            "id": "ot10",
+            "name": "豚ハラミ",
+            "name_en": "pork skirt steak",
+            "quantity": 1
+        },
+        {
+            "id": "ot11",
+            "name": "ベーコン",
+            "name_en": "pork bacon",
+            "quantity": 1
+        },
+        {
+            "id": "ot12",
+            "name": "トントロ",
+            "name_en": "pork cheek",
+            "quantity": 4
+        },
+        {
+            "id": "ot13",
+            "name": "豚タン",
+            "name_en": "pork tongue",
+            "quantity": 4
+        },
+        {
+            "id": "ot14",
+            "name": "牛レバー",
+            "name_en": "beef liver",
+            "quantity": 4
+        },
+        {
+            "id": "ot15",
+            "name": "牛ミノ",
+            "name_en": "beef tripe",
+            "quantity": 4
+        },
+        {
+            "id": "ot16",
+            "name": "豚ホルモン",
+            "name_en": "pork offal",
+            "quantity": 4
+        },
+        {
+            "id": "ot17",
+            "name": "ソーセージ",
+            "name_en": "sausage",
+            "quantity": 4
+        },
+        {
+            "id": "ot18",
+            "name": "鶏もも",
+            "name_en": "chicken thigh",
+            "quantity": 4
+        },
+        {
+            "id": "ot17",
+            "name": "味噌ホルモン",
+            "name_en": "miso pork offal with foil",
+            "quantity": 1
+        },
+        {
+            "id": "ot18",
+            "name": "ニンニク焼き",
+            "name_en": "garlic with foil for grill",
+            "quantity": 1
+        },
+        {
+            "id": "ot19",
+            "name": "キノコのバター焼き",
+            "name_en": "",
+            "quantity": 1
+        },
+        {
+            "id": "ot20",
+            "name": "キムチ盛り合わせ",
+            "name_en": "kimchi assortment",
+            "quantity": 1
+        }
+    ]
+} 

@@ -1,0 +1,69 @@
+{
+    "course_name": "極みコース",
+    "price": 10000,
+    "description": "神戸牛も松坂牛も食べ放題！お得な最高級焼肉食べ放題コース！",
+    "order_time": 80,
+    "seat_time": 20,
+    "dishes_": [
+        {
+            "id": "kw1",
+            "name": "特上牛タン",
+            "name_en": "supreme beef tongue",
+            "quantity": 2
+        },
+        {
+            "id": "kw2",
+            "name": "和牛カルビ",
+            "name_en": "wagyu beef rib",
+            "quantity": 2
+        },
+        {
+            "id": "kw3",
+            "name": "和牛ロース",
+            "name_en": "wagyu beef loin",
+            "quantity": 2
+        },
+        {
+            "id": "kw4",
+            "name": "和牛ハラミ",
+            "name_en": "wagyu beef skirt",
+            "quantity": 2
+        },
+        {
+            "id": "kw5",
+            "name": "上タン塩",
+            "name_en": "premium salted tongue",
+            "quantity": 1
+        },
+        {
+            "id": "kw6",
+            "name": "特選ホルモン",
+            "name_en": "special horumon",
+            "quantity": 1
+        },
+        {
+            "id": "kw7",
+            "name": "キムチ盛り合わせ",
+            "name_en": "kimchi assortment",
+            "quantity": 1
+        },
+        {
+            "id": "kw8",
+            "name": "ナムル",
+            "name_en": "namul",
+            "quantity": 1
+        },
+        {
+            "id": "kw9",
+            "name": "サンチュ",
+            "name_en": "sangchu",
+            "quantity": 2
+        },
+        {
+            "id": "kw10",
+            "name": "冷麺",
+            "name_en": "cold noodles",
+            "quantity": 1
+        }
+    ]
+} 

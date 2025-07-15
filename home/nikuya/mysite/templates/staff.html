@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>店員用ページ</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="staff-container">
+        <h1>店員用ページ</h1>
+        
+        <div class="timer-management-section">
+            <h2>タイマー管理</h2>
+            <div class="timer-grid" id="timer-grid">
+                <!-- タイマー情報はJavaScriptで動的に更新 -->
+            </div>
+        </div>
+
+        <div class="orders-section">
+            <h2>新着注文一覧</h2>
+            <table class="orders-table" id="orders-table">
+                <thead>
+                    <tr>
+                        <th>席番号</th>
+                        <th>コース</th>
+                        <th>メニュー</th>
+                        <th>個数</th>
+                        <th>注文時刻</th>
+                        <th>タイマー切れ</th>
+                        <th>状態</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for o in orders %}
+                    <tr class="{% if o.expired %}expired{% endif %}">
+                        <td>{{ o.seat }}</td>
+                        <td>{{ courses[o.course_name].course_name }}</td>
+                        <td>
+                            {% for item in courses[o.course_name].dishes_ %}
+                                {% if item.id == o.menu_id %}
+                                    {{ item.name }}
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ o.quantity }}</td>
+                        <td>{{ o.time.strftime('%H:%M:%S') }}</td>
+                        <td>{% if o.expired %}●{% endif %}</td>
+                        <td>
+                            <button class="status-toggle" 
+                                    data-index="{{ loop.index0 }}" 
+                                    data-status="{% if o.checked %}ok{% else %}cooking{% endif %}">
+                                {% if o.checked %}OK{% else %}調理中{% endif %}
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="expired-section">
+            <h2>タイマー切れ席一覧</h2>
+            <ul class="expired-list" id="expired-list">
+                {% for s in expired_seats %}
+                <li>
+                    席 {{ s.seat }} ({{ s.expired_time.strftime('%H:%M:%S') }})
+                    <button class="reset-timer" data-seat="{{ s.seat }}">タイマーリセット</button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <audio id="timer-sound" src="data:audio/wav;base64,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qJrx4KOQjahZxWbcZgztj2c49nKmkId44S71j0c8eV9yDK6uPRzx5X18eDvjvQ6yKo9ZSS6l//8elePK/Lf//IInrOF/FvDoADYAGBMGb7FtErm5MXMlmPAJQVgWta7Zx2go+8xJ0UiCb8LHHdftWyLJE0QIAIsI+UbXu67dZMjmgDGCGl1H+vpF4NSDckSIkk7Vd+sxEhBQMRU8j/12UIRhzSaUdQ+rQU5kGeFxm+hb1oh6pWWmv3uvmReDl0UnvtapVaIzo1jZbf/pD6ElLqSX+rUmOQNpJFa/r+sa4e/pBlAABoAAAAA3CUgShLdGIxsY7AUABPRrgCABdDuQ5GC7DqPQCgbbJUAoRSUj+NIEig0YfyWUho1VBBBA//uQZB4ABZx5zfMakeAAAAmwAAAAF5F3P0w9GtAAACfAAAAAwLhMDmAYWMgVEG1U0FIGCBgXBXAtfMH10000EEEEEECUBYln03TTTdNBDZopopYvrTTdNa325mImNg3TTPV9q3pmY0xoO6bv3r00y+IDGid/9aaaZTGMuj9mpu9Mpio1dXrr5HERTZSmqU36A3CumzN/9Robv/Xx4v9ijkSRSNLQhAWumap82WRSBUqXStV/YcS+XVLnSS+WLDroqArFkMEsAS+eWmrUzrO0oEmE40RlMZ5+ODIkAyKAGUwZ3mVKmcamcJnMW26MRPgUw6j+LkhyHGVGYjSUUKNpuJUQoOIAyDvEyG8S5yfK6dhZc0Tx1KI/gviKL6qvvFs1+bWtaz58uUNnryq6kt5RzOCkPWlVqVX2a/EEBUdU1KrXLf40GoiiFXK///qpoiDXrOgqDR38JB0bw7SoL+ZB9o1RCkQjQ2CBYZKd/+VJxZRRZlqSkKiws0WFxUyCwsKiMy7hUVFhIaCrNQsKkTIsLivwKKigsj8XYlwt/WKi2N4d//uQRCSAAjURNIHpMZBGYiaQPSYyAAABLAAAAAAAACWAAAAApUF/Mg+0aohSIRobBAsMlO//Kk4soosy1JSFRYWaLC4qZBYWFRGZdwqKiwkNBVmoWFSJkWFxX4FFRQWR+LsS4W/rFRb/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////VEFHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU291bmRib3kuZGUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMjAwNGh0dHA6Ly93d3cuc291bmRib3kuZGUAAAAAAAAAACU="></audio>
+
+    <script>
+        // タイマー切れ時のサウンド再生
+        function playTimerSound() {
+            document.getElementById('timer-sound').play();
+        }
+
+        // ステータストグルボタンのクリックイベント
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('status-toggle')) {
+                const button = e.target;
+                const idx = button.getAttribute('data-index');
+                const currentStatus = button.getAttribute('data-status');
+                const newStatus = currentStatus === 'cooking' ? 'ok' : 'cooking';
+                
+                // ボタンの表示を更新
+                button.setAttribute('data-status', newStatus);
+                button.textContent = newStatus === 'ok' ? 'OK' : '調理中';
+                
+                // サーバーに状態を送信
+                fetch('/order_check', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `index=${idx}&checked=${newStatus === 'ok'}`
+                });
+            }
+        });
+
+        // 定期的に注文一覧・タイマー切れ席一覧を更新
+        async function reloadStaffData() {
+            const res = await fetch('/staff_data');
+            const data = await res.json();
+            
+            // タイマーグリッドの更新
+            const timerGrid = document.getElementById('timer-grid');
+            const timerHtml = Object.entries(data.timer_info)
+                .sort(([seatA], [seatB]) => parseInt(seatA) - parseInt(seatB))
+                .map(([seat, info]) => {
+                    const orderStatusClass = info.active ? 
+                        (info.order_remaining_minutes < 10 ? 'warning' : 'active') : 
+                        'inactive';
+                    const seatStatusClass = info.active ? 
+                        (info.seat_remaining_minutes < 10 ? 'warning' : 'active') : 
+                        'inactive';
+                    
+                    const orderTimeDisplay = info.active ? 
+                        `注文：${info.order_remaining_minutes}分${info.order_remaining_seconds}秒` :
+                        '未開始';
+                    const seatTimeDisplay = info.active ? 
+                        `席：${info.seat_remaining_minutes}分${info.seat_remaining_seconds}秒` :
+                        '';
+                    
+                    const courseDisplay = info.course ? 
+                        `（${COURSE_MENUS[info.course]?.course_name || '不明なコース'}）` :
+                        '（コース未選択）';
+                    
+                    return `
+                        <div class="timer-card ${orderStatusClass}">
+                            <h3>席 ${seat}</h3>
+                            <div class="timer-info">
+                                <div class="time-display">
+                                    <div class="order-time">${orderTimeDisplay}</div>
+                                    <div class="seat-time">${seatTimeDisplay}</div>
+                                </div>
+                                <div class="course-info">${courseDisplay}</div>
+                                ${info.order_end_time ? `
+                                    <div class="end-time">
+                                        注文終了: ${info.order_end_time}<br>
+                                        退席時間: ${info.seat_end_time}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            ${info.active ? `
+                                <button class="reset-timer" data-seat="${seat}">
+                                    未開始に戻す
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                }).join('');
+            
+            timerGrid.innerHTML = timerHtml;
+
+            // 新しくタイマー切れになった席があれば音を鳴らす
+            const currentExpiredSeats = new Set(data.expired_seats.map(s => s.seat));
+            const previousExpiredSeats = new Set(
+                Array.from(document.querySelectorAll('#expired-list li'))
+                    .map(li => parseInt(li.textContent.match(/席 (\d+)/)[1]))
+            );
+            
+            for (const seat of currentExpiredSeats) {
+                if (!previousExpiredSeats.has(seat)) {
+                    playTimerSound();
+                    break;
+                }
+            }
+
+            // 注文テーブル再描画
+            const tbody = document.querySelector('#orders-table tbody');
+            tbody.innerHTML = data.orders.map((o, i) => `
+                <tr class="${o.expired ? 'expired' : ''}">
+                    <td>${o.seat}</td>
+                    <td>${o.course_name}</td>
+                    <td>${o.menu_name}</td>
+                    <td>${o.quantity}</td>
+                    <td>${o.time}</td>
+                    <td>${o.expired ? '●' : ''}</td>
+                    <td>
+                        <button class="status-toggle" 
+                                data-index="${i}" 
+                                data-status="${o.checked ? 'ok' : 'cooking'}">
+                            ${o.checked ? 'OK' : '調理中'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+
+            // タイマー切れ席一覧再描画
+            const expiredList = document.getElementById('expired-list');
+            expiredList.innerHTML = data.expired_seats
+                .map(s => `
+                    <li>
+                        席 ${s.seat} (${s.expired_time})
+                        <button class="reset-timer" data-seat="${s.seat}">タイマーリセット</button>
+                    </li>
+                `).join('');
+        }
+
+        // タイマーリセットボタンのクリックイベント
+        document.addEventListener('click', async function(e) {
+            if (e.target.classList.contains('reset-timer')) {
+                const seat = e.target.getAttribute('data-seat');
+                try {
+                    const response = await fetch(`/reset_timer/${seat}`, {
+                        method: 'POST'
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        reloadStaffData();
+                    } else {
+                        alert(data.error || 'タイマーのリセットに失敗しました');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('タイマーのリセットに失敗しました');
+                }
+            }
+        });
+
+        setInterval(reloadStaffData, 5000);
+    </script>
+</body>
+</html> 

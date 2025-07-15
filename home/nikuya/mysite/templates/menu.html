@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ course.course_name }} - 席{{ seat }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="menu-header">
+        <h1>席 {{ seat }} - {{ course.course_name }}</h1>
+        <div class="course-info">
+            <p class="price">{{ "{:,}".format(course.price) }}円</p>
+            <p class="description">{{ course.description }}</p>
+        </div>
+        <div class="timer-container">
+            <div id="timer-display">
+                <div class="order-timer">
+                    注文可能時間: <span id="order-timer">--:--</span>
+                </div>
+                <div class="seat-timer">
+                    席時間: <span id="seat-timer">--:--</span>
+                </div>
+            </div>
+            <div id="timer-expired" class="timer-expired" style="display: none;">
+                注文可能時間が終了しました
+            </div>
+            <div id="seat-expired" class="seat-expired" style="display: none;">
+                入口近くでお会計いたしますので伝票をもってきてください。そのまま席を使用している場合、延長料金が発生いたします。ご了承くださいませ。
+                近頃忘れ物が増えております。お帰りの際はお気を付けください。またのご来店をおまちしております。
+            </div>
+        </div>
+    </div>
+
+    <div class="menu-container">
+        <!-- メニュー一覧 -->
+        <div class="menu-list">
+            <h2>メニュー一覧</h2>
+            <div class="menu-grid">
+                {% for item in course.dishes_ %}
+                <div class="menu-item">
+                    <div class="item-info">
+                        <h3>{{ item.name }}</h3>
+                        <p class="menu-en">{{ item.name_en }}</p>
+                        <p class="quantity">提供数: {{ item.quantity }}人前</p>
+                    </div>
+                    <form class="order-form" onsubmit="return submitOrder(this, '{{ item.id }}')">
+                        <input type="hidden" name="seat" value="{{ seat }}">
+                        <input type="hidden" name="menu_id" value="{{ item.id }}">
+                        <div class="order-controls">
+                            <button type="button" class="quantity-btn minus" onclick="adjustQuantity(this.form, -1)">−</button>
+                            <input type="number" name="quantity" min="1" max="5" value="1" class="quantity-input" readonly>
+                            <button type="button" class="quantity-btn plus" onclick="adjustQuantity(this.form, 1)">＋</button>
+                            <button type="submit" class="order-button">
+                                <span class="order-button-text">注文する</span>
+                                <span class="order-button-icon">→</span>
+                            </button>
+                        </div>
+                        <div class="order-status" id="status-{{ item.id }}"></div>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 注文履歴 -->
+        <div class="order-history">
+            <h2>注文履歴</h2>
+            <div id="order-history-list"></div>
+        </div>
+    </div>
+
+    <script>
+        // 数量調整
+        function adjustQuantity(form, delta) {
+            const input = form.querySelector('input[name="quantity"]');
+            const newValue = Math.max(1, Math.min(5, parseInt(input.value) + delta));
+            input.value = newValue;
+        }
+
+        // タイマー状態の取得と更新
+        async function checkTimerStatus() {
+            try {
+                const response = await fetch('/staff_data');
+                const data = await response.json();
+                const timerInfo = data.timer_info['{{ seat }}'];
+                
+                const timerDisplay = document.getElementById('timer-display');
+                const timerExpired = document.getElementById('timer-expired');
+                const seatExpired = document.getElementById('seat-expired');
+                const orderButtons = document.querySelectorAll('.order-button');
+                
+                if (!timerInfo.active) {
+                    // タイマーが未開始または終了
+                    timerDisplay.style.display = 'none';
+                    timerExpired.style.display = 'block';
+                    seatExpired.style.display = 'block';
+                    orderButtons.forEach(button => button.disabled = true);
+                    return;
+                }
+                
+                // タイマーがアクティブ
+                timerDisplay.style.display = 'block';
+                
+                // 注文時間の表示
+                if (timerInfo.order_remaining_minutes <= 0 && timerInfo.order_remaining_seconds <= 0) {
+                    // 注文時間切れ
+                    document.getElementById('order-timer').textContent = '終了';
+                    timerExpired.style.display = 'block';
+                    orderButtons.forEach(button => button.disabled = true);
+                } else {
+                    // 注文時間進行中
+                    document.getElementById('order-timer').textContent = 
+                        `${timerInfo.order_remaining_minutes}分${timerInfo.order_remaining_seconds}秒`;
+                    timerExpired.style.display = 'none';
+                    orderButtons.forEach(button => button.disabled = false);
+                }
+
+                // 席時間の表示
+                if (timerInfo.seat_remaining_minutes <= 0 && timerInfo.seat_remaining_seconds <= 0) {
+                    // 席時間切れ
+                    document.getElementById('seat-timer').textContent = '終了';
+                    seatExpired.style.display = 'block';
+                } else {
+                    // 席時間進行中
+                    document.getElementById('seat-timer').textContent = 
+                        `${timerInfo.seat_remaining_minutes}分${timerInfo.seat_remaining_seconds}秒`;
+                    seatExpired.style.display = 'none';
+                }
+
+                // 注文履歴の更新
+                updateOrderHistory(data.orders);
+            } catch (error) {
+                console.error('タイマー状態の取得に失敗:', error);
+            }
+        }
+
+        // 注文処理
+        async function submitOrder(form, itemId) {
+            const formData = new FormData(form);
+            const statusDiv = document.getElementById(`status-${itemId}`);
+            const submitButton = form.querySelector('.order-button');
+            
+            try {
+                submitButton.disabled = true;
+                const response = await fetch('/order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: new URLSearchParams(formData).toString()
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    statusDiv.textContent = '注文を受け付けました';
+                    statusDiv.className = 'order-status success';
+                    form.reset();
+                    form.querySelector('input[name="quantity"]').value = '1';
+                    // 注文履歴を即時更新
+                    checkTimerStatus();
+                } else {
+                    statusDiv.textContent = data.error || '注文に失敗しました';
+                    statusDiv.className = 'order-status error';
+                }
+            } catch (error) {
+                statusDiv.textContent = 'エラーが発生しました';
+                statusDiv.className = 'order-status error';
+            } finally {
+                submitButton.disabled = false;
+                setTimeout(() => {
+                    statusDiv.textContent = '';
+                    statusDiv.className = 'order-status';
+                }, 3000);
+            }
+            
+            return false;
+        }
+
+        // 注文履歴の更新
+        function updateOrderHistory(orders) {
+            const historyList = document.getElementById('order-history-list');
+            const seatOrders = orders.filter(o => o.seat === {{ seat }});
+            
+            if (seatOrders.length === 0) {
+                historyList.innerHTML = '<p class="no-orders">注文履歴はありません</p>';
+                return;
+            }
+
+            historyList.innerHTML = seatOrders.map(order => `
+                <div class="history-item ${order.checked ? 'completed' : ''} ${order.expired ? 'expired' : ''}">
+                    <div class="history-item-content">
+                        <span class="history-item-name">${order.menu_name}</span>
+                        <span class="history-item-quantity">${order.quantity}人前</span>
+                    </div>
+                    <div class="history-item-time">${order.time}</div>
+                    <div class="history-item-status">
+                        ${order.checked ? '提供済み' : (order.expired ? '時間切れ' : '調理中')}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 定期的にタイマー状態を確認（5秒ごと）
+        setInterval(checkTimerStatus, 5000);
+        // 初回実行
+        checkTimerStatus();
+
+        // タッチデバイスのサポートを追加
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.select-button');
+            buttons.forEach(button => {
+                button.addEventListener('touchstart', function(e) {
+                    e.preventDefault(); // デフォルトのタッチ動作を防止
+                    this.click(); // クリックイベントを発火
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

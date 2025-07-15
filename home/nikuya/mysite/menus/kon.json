@@ -1,0 +1,87 @@
+{
+    "course_name": "コンちゃんコース",
+    "price": 6000,
+    "description": "アルコール飲み放題つき！店長のコンちゃんおすすめの焼肉食べ放題コース！！",
+    "order_time": 90,
+    "seat_time": 30,
+    "dishes_": [
+        {
+            "id": "kn1",
+            "name": "特上芯タン",
+            "name_en": "premium center-cut tongue",
+            "quantity": 2
+        },
+        {
+            "id": "kn2",
+            "name": "A5和牛カルビ",
+            "name_en": "A5 wagyu beef rib",
+            "quantity": 2
+        },
+        {
+            "id": "kn3",
+            "name": "A5和牛ロース",
+            "name_en": "A5 wagyu beef loin",
+            "quantity": 2
+        },
+        {
+            "id": "kn4",
+            "name": "A5和牛ザブトン",
+            "name_en": "A5 wagyu zabuton",
+            "quantity": 2
+        },
+        {
+            "id": "kn5",
+            "name": "A5和牛フィレ",
+            "name_en": "A5 wagyu filet",
+            "quantity": 2
+        },
+        {
+            "id": "kn6",
+            "name": "特選タン塩",
+            "name_en": "special salted tongue",
+            "quantity": 1
+        },
+        {
+            "id": "kn7",
+            "name": "特製ユッケ",
+            "name_en": "special yukhoe",
+            "quantity": 1
+        },
+        {
+            "id": "kn8",
+            "name": "和牛握り",
+            "name_en": "wagyu nigiri",
+            "quantity": 2
+        },
+        {
+            "id": "kn9",
+            "name": "キムチ盛り合わせ",
+            "name_en": "kimchi assortment",
+            "quantity": 1
+        },
+        {
+            "id": "kn10",
+            "name": "ナムル",
+            "name_en": "namul",
+            "quantity": 1
+        },
+        {
+            "id": "kn11",
+            "name": "サンチュ",
+            "name_en": "sangchu",
+            "quantity": 2
+        },
+        {
+            "id": "kn12",
+            "name": "冷麺",
+            "name_en": "cold noodles",
+            "quantity": 1
+        },
+        {
+            "id": "kn13",
+            "name": "特製デザート",
+            "name_en": "special dessert",
+            "quantity": 1
+        }
+    ]
+} 

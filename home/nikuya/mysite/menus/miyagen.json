@@ -1,0 +1,81 @@
+{
+    "course_name": "宮益坂限定コース",
+    "price": 5000,
+    "description": "アルコール飲み放題つきの焼肉食べ放題コース！",
+    "order_time": 80,
+    "seat_time": 20,
+    "dishes_": [
+        {
+            "id": "mg1",
+            "name": "特上芯タン",
+            "name_en": "premium center-cut tongue",
+            "quantity": 2
+        },
+        {
+            "id": "mg2",
+            "name": "特選和牛カルビ",
+            "name_en": "special wagyu beef rib",
+            "quantity": 2
+        },
+        {
+            "id": "mg3",
+            "name": "特選和牛ロース",
+            "name_en": "special wagyu beef loin",
+            "quantity": 2
+        },
+        {
+            "id": "mg4",
+            "name": "和牛ザブトン",
+            "name_en": "wagyu zabuton",
+            "quantity": 2
+        },
+        {
+            "id": "mg5",
+            "name": "和牛フィレ",
+            "name_en": "wagyu filet",
+            "quantity": 1
+        },
+        {
+            "id": "mg6",
+            "name": "上タン塩",
+            "name_en": "premium salted tongue",
+            "quantity": 1
+        },
+        {
+            "id": "mg7",
+            "name": "特製ユッケ",
+            "name_en": "special yukhoe",
+            "quantity": 1
+        },
+        {
+            "id": "mg8",
+            "name": "キムチ盛り合わせ",
+            "name_en": "kimchi assortment",
+            "quantity": 1
+        },
+        {
+            "id": "mg9",
+            "name": "ナムル",
+            "name_en": "namul",
+            "quantity": 1
+        },
+        {
+            "id": "mg10",
+            "name": "サンチュ",
+            "name_en": "sangchu",
+            "quantity": 2
+        },
+        {
+            "id": "mg11",
+            "name": "冷麺",
+            "name_en": "cold noodles",
+            "quantity": 1
+        },
+        {
+            "id": "mg12",
+            "name": "デザート",
+            "name_en": "dessert",
+            "quantity": 1
+        }
+    ]
+} 

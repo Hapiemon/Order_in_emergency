@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>席選択</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>席を選んでください</h1>
+    <p>please select your seat</p>
+    <div class="seats">
+        {% for seat in seats %}
+            <a class="seat-link" href="/menu/{{ seat }}">{{ seat }}</a>
+        {% endfor %}
+    </div>
+</body>
+</html> 

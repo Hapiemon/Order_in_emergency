@@ -1,0 +1,57 @@
+{
+    "course_name": "特選コース",
+    "price": 8000,
+    "description": "黒毛和牛の希少部位や厚切り牛タンも食べ放題！ソフトドリンク飲み放題つきの焼肉食べ放題コース！",
+    "order_time": 80,
+    "seat_time": 20,
+    "dishes_": [
+        {
+            "id": "tk1",
+            "name": "極上牛タン",
+            "name_en": "premium beef tongue",
+            "quantity": 2
+        },
+        {
+            "id": "tk2",
+            "name": "特選カルビ",
+            "name_en": "special beef rib",
+            "quantity": 2
+        },
+        {
+            "id": "tk3",
+            "name": "特選ロース",
+            "name_en": "special beef loin",
+            "quantity": 2
+        },
+        {
+            "id": "tk4",
+            "name": "ハラミ",
+            "name_en": "beef skirt",
+            "quantity": 1
+        },
+        {
+            "id": "tk5",
+            "name": "上ホルモン",
+            "name_en": "premium horumon",
+            "quantity": 1
+        },
+        {
+            "id": "tk6",
+            "name": "キムチ盛り合わせ",
+            "name_en": "kimchi assortment",
+            "quantity": 1
+        },
+        {
+            "id": "tk7",
+            "name": "サンチュ",
+            "name_en": "sangchu",
+            "quantity": 1
+        },
+        {
+            "id": "tk8",
+            "name": "ナムル",
+            "name_en": "namul",
+            "quantity": 1
+        }
+    ]
+} 
