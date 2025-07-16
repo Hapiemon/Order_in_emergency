@@ -53,6 +53,10 @@
                 .catch(error => {
                     console.error('Error:', error);
                     alert('注文に失敗しました');
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    alert('サーバーへの接続に失敗しました。もう一度お試しください。');
                 });
             } else {
                 alert('注文数が0です。');
@@ -112,14 +116,14 @@
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            const response = await fetch('/timer_update');
+            const seat = "{{ seat|escapejs }}";
             const timerData = await response.json();
 
             const timerDisplay = document.getElementById('timer-display');
-            const seat = {{ seat }};
+            const seatNum = {{ seat }};
 
-            if (timerData[seat]) {
-                const info = timerData[seat];
+            if (timerData && typeof timerData === 'object' && timerData[seatNum]) {
+                const info = timerData[seatNum];
                 timerDisplay.textContent = `残り時間: ${info.order_remaining_minutes}分 ${info.order_remaining_seconds}秒`;
 
                 const interval = setInterval(() => {
@@ -134,6 +138,11 @@
                     }
 
                     timerDisplay.textContent = `残り時間: ${info.order_remaining_minutes}分 ${info.order_remaining_seconds}秒`;
+                }, 1000);
+            }
+                    }
+
+                    timerDisplay.textContent = formatTimerText(info.order_remaining_minutes, info.order_remaining_seconds);
                 }, 1000);
             }
         });
