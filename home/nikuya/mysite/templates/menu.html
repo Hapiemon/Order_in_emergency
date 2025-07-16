@@ -111,8 +111,31 @@
             }, 1000);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            startCountdown(80); // Start countdown with 80 minutes
+        document.addEventListener('DOMContentLoaded', async () => {
+            const response = await fetch('/timer_update');
+            const timerData = await response.json();
+
+            const timerDisplay = document.getElementById('timer-display');
+            const seat = {{ seat }};
+
+            if (timerData[seat]) {
+                const info = timerData[seat];
+                timerDisplay.textContent = `残り時間: ${info.order_remaining_minutes}分 ${info.order_remaining_seconds}秒`;
+
+                const interval = setInterval(() => {
+                    if (info.order_remaining_seconds > 0) {
+                        info.order_remaining_seconds--;
+                    } else if (info.order_remaining_minutes > 0) {
+                        info.order_remaining_minutes--;
+                        info.order_remaining_seconds = 59;
+                    } else {
+                        clearInterval(interval);
+                        timerDisplay.textContent = '時間切れ';
+                    }
+
+                    timerDisplay.textContent = `残り時間: ${info.order_remaining_minutes}分 ${info.order_remaining_seconds}秒`;
+                }, 1000);
+            }
         });
     </script>
 </head>

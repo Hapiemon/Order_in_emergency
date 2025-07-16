@@ -29,7 +29,11 @@
             const formData = new FormData(form);
             const submitButton = form.querySelector('button');
             const errorDiv = form.parentElement.querySelector('.error-message');
-            
+
+            if (!confirm('このコースで開始します。よろしいですか？')) {
+                return;
+            }
+
             try {
                 submitButton.disabled = true;
                 const response = await fetch('{{ url_for("set_course") }}', {
@@ -39,9 +43,9 @@
                     },
                     body: new URLSearchParams(formData).toString()
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (data.success) {
                     window.location.href = data.redirect;
                 } else {
