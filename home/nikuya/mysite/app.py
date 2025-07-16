@@ -137,6 +137,19 @@ def set_course():
     )
     timer_thread_obj.start()
     
+    # スタッフページに通知
+    for thread in threading.enumerate():
+        if isinstance(thread, threading.Thread) and thread.name == "staff_update":
+            thread.join(timeout=0.1)
+
+    staff_update_thread = threading.Thread(
+        target=timer_thread,
+        args=(seat,),
+        daemon=True,
+        name="staff_update"
+    )
+    staff_update_thread.start()
+    
     # メニューページにリダイレクト
     return jsonify({
         'success': True,
@@ -158,11 +171,15 @@ def order():
     if seat in seat_timers and now > seat_timers[seat]['order_end']:
         return jsonify({'success': False, 'error': '注文可能時間が終了しました'})
     
+    # 注文内容を保存
+    menu_item = next((item for category, items in COURSE_MENUS[course_name]['dishes_'].items() for item in items if item['id'] == menu_id), None)
+    if not menu_item:
+        return jsonify({'success': False, 'error': '無効なメニューIDです'})
+
     orders.append({
         'seat': seat,
         'course_name': course_name,
-        'menu_id': menu_id,
-        'quantity': quantity,
+        'dishes': [{'name': menu_item['name'], 'quantity': quantity}],
         'time': now,
         'expired': False,
         'checked': False
@@ -327,6 +344,25 @@ def handle_order():
     quantity = data.get('quantity')
     # Process the order (e.g., save to database or update session)
     return jsonify({"success": True, "itemId": item_id, "quantity": quantity})
+
+@app.route('/timer_update', methods=['GET'])
+def timer_update():
+    now = datetime.now(JST)
+    timer_info = {}
+    for seat, timers in seat_timers.items():
+        order_remaining = timers['order_end'] - now
+        seat_remaining = timers['seat_end'] - now
+
+        timer_info[seat] = {
+            'order_remaining_minutes': max(0, int(order_remaining.total_seconds() / 60)),
+            'order_remaining_seconds': max(0, int(order_remaining.total_seconds() % 60)),
+            'seat_remaining_minutes': max(0, int(seat_remaining.total_seconds() / 60)),
+            'seat_remaining_seconds': max(0, int(seat_remaining.total_seconds() % 60)),
+            'order_end_time': format_jst_time(timers['order_end']),
+            'seat_end_time': format_jst_time(timers['seat_end']),
+        }
+
+    return jsonify(timer_info)
 
 if __name__ == '__main__':
     app.run(debug=True)
