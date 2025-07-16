@@ -1,69 +1,73 @@
 {
-    "course_name": "極みコース",
-    "price": 10000,
-    "description": "神戸牛も松坂牛も食べ放題！お得な最高級焼肉食べ放題コース！",
-    "order_time": 80,
-    "seat_time": 20,
-    "dishes_": [
-        {
-            "id": "kw1",
-            "name": "特上牛タン",
-            "name_en": "supreme beef tongue",
-            "quantity": 2
-        },
-        {
-            "id": "kw2",
-            "name": "和牛カルビ",
-            "name_en": "wagyu beef rib",
-            "quantity": 2
-        },
-        {
-            "id": "kw3",
-            "name": "和牛ロース",
-            "name_en": "wagyu beef loin",
-            "quantity": 2
-        },
-        {
-            "id": "kw4",
-            "name": "和牛ハラミ",
-            "name_en": "wagyu beef skirt",
-            "quantity": 2
-        },
-        {
-            "id": "kw5",
-            "name": "上タン塩",
-            "name_en": "premium salted tongue",
-            "quantity": 1
-        },
-        {
-            "id": "kw6",
-            "name": "特選ホルモン",
-            "name_en": "special horumon",
-            "quantity": 1
-        },
-        {
-            "id": "kw7",
-            "name": "キムチ盛り合わせ",
-            "name_en": "kimchi assortment",
-            "quantity": 1
-        },
-        {
-            "id": "kw8",
-            "name": "ナムル",
-            "name_en": "namul",
-            "quantity": 1
-        },
-        {
-            "id": "kw9",
-            "name": "サンチュ",
-            "name_en": "sangchu",
-            "quantity": 2
-        },
-        {
-            "id": "kw10",
-            "name": "冷麺",
-            "name_en": "cold noodles",
-            "quantity": 1
-        }
+  "course_name": "肉屋の台所 極みコース",
+  "price": 10000,
+  "description": "黒毛和牛や神戸牛が食べ放題の最高級焼肉コース！122品、100分食べ放題。",
+  "order_time": 80,
+  "seat_time": 20,
+  "dishes_": {
+    "wagyu": [
+      { "id": "kiwami01", "name": "和牛特上カルビ", "name_en": "Wagyu Supreme Rib", "quantity": 2 },
+      { "id": "kiwami02", "name": "和牛上カルビ", "name_en": "Wagyu Premium Rib", "quantity": 2 },
+      { "id": "kiwami03", "name": "和牛旨味カルビ", "name_en": "Wagyu Umami Rib", "quantity": 2 },
+      { "id": "kiwami04", "name": "和牛上赤身", "name_en": "Wagyu Lean Round", "quantity": 2 },
+      { "id": "kiwami05", "name": "和牛シンタマ", "name_en": "Wagyu Chuck Tender", "quantity": 2 },
+      { "id": "kiwami06", "name": "和牛ランイチ", "name_en": "Wagyu Sirloin Tip", "quantity": 2 },
+      { "id": "kiwami07", "name": "神戸牛 肩ロース", "name_en": "Kobe Beef Chuck Roll", "quantity": 2 },
+      { "id": "kiwami08", "name": "松坂牛 赤身", "name_en": "Matsusaka Beef Lean", "quantity": 1 },
+      { "id": "kiwami09", "name": "肉屋の和牛焼きしゃぶ 紅", "name_en": "Wagyu Shabu Red", "quantity": 1 },
+      { "id": "kiwami10", "name": "肉屋の和牛焼きしゃぶ 白", "name_en": "Wagyu Shabu White", "quantity": 1 }
+    ],
+    "specialties": [
+      { "id": "spec01", "name": "不動の定番 肉屋のカルビ", "name_en": "Classic Beef Rib", "quantity": 1 },
+      { "id": "spec02", "name": "ワイルドカットハラミステーキ", "name_en": "Wild Cut Harami Steak", "quantity": 1 },
+      { "id": "spec03", "name": "黒毛和牛 一本カルビ", "name_en": "Whole Wagyu Rib", "quantity": 1 }
+    ],
+    "horumon": [
+      { "id": "hor01", "name": "やわらか旨豚ホルモン", "name_en": "Tender Pork Horumon", "quantity": 1 },
+      { "id": "hor02", "name": "絶品！旨味噌ホルモン", "name_en": "Delicious Miso Horumon", "quantity": 1 },
+      { "id": "hor03", "name": "ミノ", "name_en": "Beef Tripe (Mino)", "quantity": 1 },
+      { "id": "hor04", "name": "レバー", "name_en": "Liver", "quantity": 1 },
+      { "id": "hor05", "name": "壺漬けホルモンミックス", "name_en": "Marinated Horumon Mix", "quantity": 1 }
+    ],
+    "foil_grill": [
+      { "id": "foil01", "name": "にんにく焼き（コーンバター）", "name_en": "Garlic with Corn Butter", "quantity": 1 },
+      { "id": "foil02", "name": "チーズビビンバ", "name_en": "Cheese Bibimbap", "quantity": 1 },
+      { "id": "foil03", "name": "炊き餃子", "name_en": "Steamed Dumplings", "quantity": 1 },
+      { "id": "foil04", "name": "海鮮アヒージョ", "name_en": "Seafood Ajillo", "quantity": 1 },
+      { "id": "foil05", "name": "4種のきのこのバター焼き", "name_en": "4 Mushroom Butter Grill", "quantity": 1 }
+    ],
+    "seafood_grill": [
+      { "id": "sea01", "name": "海鮮盛り合わせ", "name_en": "Seafood Assortment (Shrimp, Squid, Scallop)", "quantity": 1 }
+    ],
+    "vegetables": [
+      { "id": "veg01", "name": "焼き野菜盛り", "name_en": "Vegetables Assortment for Grilling", "quantity": 1 }
+    ],
+    "side_dishes": [
+      { "id": "side01", "name": "白菜キムチ", "name_en": "Napa Cabbage Kimchi", "quantity": 1 },
+      { "id": "side02", "name": "カクテキ", "name_en": "Radish Kimchi", "quantity": 1 },
+      { "id": "side03", "name": "オイキムチ", "name_en": "Cucumber Kimchi", "quantity": 1 },
+      { "id": "side04", "name": "キムチ盛り合わせ", "name_en": "Kimchi Assortment", "quantity": 1 },
+      { "id": "side05", "name": "ナムル盛り合わせ", "name_en": "Namul Assortment", "quantity": 1 },
+      { "id": "side06", "name": "単品ナムル", "name_en": "Namul", "quantity": 1 },
+      { "id": "side07", "name": "ごはん", "name_en": "Rice", "quantity": 1 },
+      { "id": "side08", "name": "肉屋のカレー", "name_en": "Meat Shop Curry", "quantity": 1 },
+      { "id": "side09", "name": "冷麺（梅味）", "name_en": "Cold Noodles (Plum Flavor)", "quantity": 1 },
+      { "id": "side10", "name": "ユッケ風", "name_en": "Yukke Style", "quantity": 1 },
+      { "id": "side11", "name": "ネギサラダ", "name_en": "Green Onion Salad", "quantity": 1 },
+      { "id": "side12", "name": "シーザーサラダ", "name_en": "Caesar Salad", "quantity": 1 },
+      { "id": "side13", "name": "肉屋のサラダ", "name_en": "Meat Shop Salad", "quantity": 1 },
+      { "id": "side14", "name": "韓国のり", "name_en": "Korean Seaweed", "quantity": 1 }
+    ],
+    "tkg_series": [
+      { "id": "tkg01", "name": "肉屋のTKG しょうゆ", "name_en": "Meat Shop TKG Soy Sauce", "quantity": 1 },
+      { "id": "tkg02", "name": "肉屋のTKG 塩", "name_en": "Meat Shop TKG Salt", "quantity": 1 },
+      { "id": "tkg03", "name": "肉屋のTKG 自家製肉味噌", "name_en": "Meat Shop TKG Meat Miso", "quantity": 1 },
+      { "id": "tkg04", "name": "肉屋のTKG ネギ油", "name_en": "Meat Shop TKG Green Onion Oil", "quantity": 1 }
+    ],
+    "desserts": [
+      { "id": "des01", "name": "杏仁豆腐", "name_en": "Almond Jelly", "quantity": 1 },
+      { "id": "des02", "name": "フルーツポンチ", "name_en": "Fruit Punch", "quantity": 1 },
+      { "id": "des03", "name": "本日のアイス", "name_en": "Today’s Ice Cream", "quantity": 1 }
     ]
-} 
+  }
+}

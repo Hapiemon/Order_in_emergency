@@ -163,7 +163,37 @@ h1 {
 }
 
 .menu-container {
+    margin: 20px auto;
     padding: 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.menu-container h2 {
+    color: #2c3e50;
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.menu-container h4 {
+    color: #34495e;
+    font-size: 1.5em;
+    margin-top: 20px;
+}
+
+.menu-container ul {
+    list-style: none;
+    padding: 0;
+}
+
+.menu-container li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.menu-container li strong {
+    color: #2c3e50;
 }
 
 .menu-grid {
@@ -683,4 +713,4 @@ h1 {
 .nav-button-icon {
     margin-right: 10px;
     font-size: 1.2em;
-} 
+}

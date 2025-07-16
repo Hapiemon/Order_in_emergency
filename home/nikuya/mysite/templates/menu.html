@@ -33,41 +33,20 @@
     </div>
 
     <div class="menu-container">
-        <!-- メニュー一覧 -->
-        <div class="menu-list">
-            <h2>メニュー一覧</h2>
-            <div class="menu-grid">
-                {% for item in course.dishes_ %}
-                <div class="menu-item">
-                    <div class="item-info">
-                        <h3>{{ item.name }}</h3>
-                        <p class="menu-en">{{ item.name_en }}</p>
-                        <p class="quantity">提供数: {{ item.quantity }}人前</p>
-                    </div>
-                    <form class="order-form" onsubmit="return submitOrder(this, '{{ item.id }}')">
-                        <input type="hidden" name="seat" value="{{ seat }}">
-                        <input type="hidden" name="menu_id" value="{{ item.id }}">
-                        <div class="order-controls">
-                            <button type="button" class="quantity-btn minus" onclick="adjustQuantity(this.form, -1)">−</button>
-                            <input type="number" name="quantity" min="1" max="5" value="1" class="quantity-input" readonly>
-                            <button type="button" class="quantity-btn plus" onclick="adjustQuantity(this.form, 1)">＋</button>
-                            <button type="submit" class="order-button">
-                                <span class="order-button-text">注文する</span>
-                                <span class="order-button-icon">→</span>
-                            </button>
-                        </div>
-                        <div class="order-status" id="status-{{ item.id }}"></div>
-                    </form>
-                </div>
+        <h2>{{ course.course_name }}</h2>
+        <p>価格: {{ course.price }}円</p>
+        <p>説明: {{ course.description }}</p>
+        <h3>メニュー</h3>
+        {% for category, items in course.dishes_.items() %}
+            <h4>{{ category }}</h4>
+            <ul>
+                {% for item in items %}
+                    <li>
+                        <strong>{{ item.name }}</strong> ({{ item.name_en }}) - 提供数: {{ item.quantity }}
+                    </li>
                 {% endfor %}
-            </div>
-        </div>
-
-        <!-- 注文履歴 -->
-        <div class="order-history">
-            <h2>注文履歴</h2>
-            <div id="order-history-list"></div>
-        </div>
+            </ul>
+        {% endfor %}
     </div>
 
     <script>
@@ -219,4 +198,4 @@
         });
     </script>
 </body>
-</html> 
+</html>

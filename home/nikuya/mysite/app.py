@@ -312,5 +312,13 @@ def timer_thread(seat):
         
         time.sleep(1)  # 1秒ごとにチェック
 
+@app.route('/menu/<course_id>')
+def show_menu(course_id):
+    if course_id in COURSE_MENUS:
+        course_data = COURSE_MENUS[course_id]
+        return render_template('menu.html', course=course_data)
+    else:
+        return "Course not found", 404
+
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True)
