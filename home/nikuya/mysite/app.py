@@ -320,5 +320,13 @@ def show_menu(course_id):
     else:
         return "Course not found", 404
 
+@app.route('/order', methods=['POST'])
+def handle_order():
+    data = request.get_json()
+    item_id = data.get('itemId')
+    quantity = data.get('quantity')
+    # Process the order (e.g., save to database or update session)
+    return jsonify({"success": True, "itemId": item_id, "quantity": quantity})
+
 if __name__ == '__main__':
     app.run(debug=True)

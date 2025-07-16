@@ -3,199 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ course.course_name }} - 席{{ seat }}</title>
+    <title>{{ course.course_name }} - メニュー</title>
     <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
-    <div class="menu-header">
-        <h1>席 {{ seat }} - {{ course.course_name }}</h1>
-        <div class="course-info">
-            <p class="price">{{ "{:,}".format(course.price) }}円</p>
-            <p class="description">{{ course.description }}</p>
-        </div>
-        <div class="timer-container">
-            <div id="timer-display">
-                <div class="order-timer">
-                    注文可能時間: <span id="order-timer">--:--</span>
-                </div>
-                <div class="seat-timer">
-                    席時間: <span id="seat-timer">--:--</span>
-                </div>
-            </div>
-            <div id="timer-expired" class="timer-expired" style="display: none;">
-                注文可能時間が終了しました
-            </div>
-            <div id="seat-expired" class="seat-expired" style="display: none;">
-                入口近くでお会計いたしますので伝票をもってきてください。そのまま席を使用している場合、延長料金が発生いたします。ご了承くださいませ。
-                近頃忘れ物が増えております。お帰りの際はお気を付けください。またのご来店をおまちしております。
-            </div>
-        </div>
-    </div>
-
-    <div class="menu-container">
-        <h2>{{ course.course_name }}</h2>
-        <p>価格: {{ course.price }}円</p>
-        <p>説明: {{ course.description }}</p>
-        <h3>メニュー</h3>
-        {% for category, items in course.dishes_.items() %}
-            <h4>{{ category }}</h4>
-            <ul>
-                {% for item in items %}
-                    <li>
-                        <strong>{{ item.name }}</strong> ({{ item.name_en }}) - 提供数: {{ item.quantity }}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endfor %}
-    </div>
-
     <script>
-        // 数量調整
-        function adjustQuantity(form, delta) {
-            const input = form.querySelector('input[name="quantity"]');
-            const newValue = Math.max(1, Math.min(5, parseInt(input.value) + delta));
-            input.value = newValue;
-        }
+        let currentOrderCount = 0;
 
-        // タイマー状態の取得と更新
-        async function checkTimerStatus() {
-            try {
-                const response = await fetch('/staff_data');
-                const data = await response.json();
-                const timerInfo = data.timer_info['{{ seat }}'];
-                
-                const timerDisplay = document.getElementById('timer-display');
-                const timerExpired = document.getElementById('timer-expired');
-                const seatExpired = document.getElementById('seat-expired');
-                const orderButtons = document.querySelectorAll('.order-button');
-                
-                if (!timerInfo.active) {
-                    // タイマーが未開始または終了
-                    timerDisplay.style.display = 'none';
-                    timerExpired.style.display = 'block';
-                    seatExpired.style.display = 'block';
-                    orderButtons.forEach(button => button.disabled = true);
-                    return;
-                }
-                
-                // タイマーがアクティブ
-                timerDisplay.style.display = 'block';
-                
-                // 注文時間の表示
-                if (timerInfo.order_remaining_minutes <= 0 && timerInfo.order_remaining_seconds <= 0) {
-                    // 注文時間切れ
-                    document.getElementById('order-timer').textContent = '終了';
-                    timerExpired.style.display = 'block';
-                    orderButtons.forEach(button => button.disabled = true);
-                } else {
-                    // 注文時間進行中
-                    document.getElementById('order-timer').textContent = 
-                        `${timerInfo.order_remaining_minutes}分${timerInfo.order_remaining_seconds}秒`;
-                    timerExpired.style.display = 'none';
-                    orderButtons.forEach(button => button.disabled = false);
-                }
-
-                // 席時間の表示
-                if (timerInfo.seat_remaining_minutes <= 0 && timerInfo.seat_remaining_seconds <= 0) {
-                    // 席時間切れ
-                    document.getElementById('seat-timer').textContent = '終了';
-                    seatExpired.style.display = 'block';
-                } else {
-                    // 席時間進行中
-                    document.getElementById('seat-timer').textContent = 
-                        `${timerInfo.seat_remaining_minutes}分${timerInfo.seat_remaining_seconds}秒`;
-                    seatExpired.style.display = 'none';
-                }
-
-                // 注文履歴の更新
-                updateOrderHistory(data.orders);
-            } catch (error) {
-                console.error('タイマー状態の取得に失敗:', error);
+        function updateOrder(itemId, increment) {
+            const orderCount = document.getElementById(`order-count-${itemId}`);
+            let currentCount = parseInt(orderCount.textContent);
+            if (increment && currentOrderCount < 5) {
+                currentCount++;
+                currentOrderCount++;
+            } else if (!increment && currentCount > 0) {
+                currentCount--;
+                currentOrderCount--;
             }
+            orderCount.textContent = currentCount;
+            document.getElementById('current-order-count').textContent = currentOrderCount;
         }
 
-        // 注文処理
-        async function submitOrder(form, itemId) {
-            const formData = new FormData(form);
-            const statusDiv = document.getElementById(`status-${itemId}`);
-            const submitButton = form.querySelector('.order-button');
-            
-            try {
-                submitButton.disabled = true;
-                const response = await fetch('/order', {
+        function submitOrder() {
+            if (currentOrderCount > 0) {
+                fetch(`/order`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/json',
                     },
-                    body: new URLSearchParams(formData).toString()
+                    body: JSON.stringify({
+                        seat: selectedSeat,
+                        course: selectedCourse,
+                        items: Array.from(document.querySelectorAll('.menu-item')).map(item => {
+                            const itemId = item.getAttribute('data-id');
+                            const quantity = parseInt(document.getElementById(`order-count-${itemId}`).textContent);
+                            return { id: itemId, quantity };
+                        }).filter(item => item.quantity > 0)
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('注文成功！');
+                        currentOrderCount = 0;
+                        document.getElementById('current-order-count').textContent = currentOrderCount;
+                        document.querySelectorAll('.menu-item .order-count').forEach(count => count.textContent = '0');
+                    } else {
+                        alert('注文に失敗しました: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('注文に失敗しました');
                 });
-                
-                const data = await response.json();
-                
-                if (data.success) {
-                    statusDiv.textContent = '注文を受け付けました';
-                    statusDiv.className = 'order-status success';
-                    form.reset();
-                    form.querySelector('input[name="quantity"]').value = '1';
-                    // 注文履歴を即時更新
-                    checkTimerStatus();
-                } else {
-                    statusDiv.textContent = data.error || '注文に失敗しました';
-                    statusDiv.className = 'order-status error';
+            } else {
+                alert('注文数が0です。');
+            }
+        }
+
+        // コース選択時にタイマーを開始
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('select-course-button')) {
+                const selectedCourse = e.target.getAttribute('data-course');
+                const seat = e.target.getAttribute('data-seat');
+
+                fetch('/start_timer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        seat: seat,
+                        course: selectedCourse
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // タイマーをUIに表示
+                        const timerDisplay = document.getElementById(`timer-display-${seat}`);
+                        timerDisplay.textContent = `残り時間: ${data.remaining_minutes}分 ${data.remaining_seconds}秒`;
+                        timerDisplay.style.display = 'block';
+                    } else {
+                        alert('タイマーの開始に失敗しました: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('タイマーの開始に失敗しました');
+                });
+            }
+        });
+
+        function startCountdown(duration) {
+            const timerDisplay = document.getElementById('timer-display');
+            let remainingTime = duration * 60; // Convert minutes to seconds
+
+            const interval = setInterval(() => {
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                timerDisplay.textContent = `残り時間: ${minutes}分 ${seconds}秒`;
+
+                if (remainingTime <= 0) {
+                    clearInterval(interval);
+                    timerDisplay.textContent = '時間切れ';
                 }
-            } catch (error) {
-                statusDiv.textContent = 'エラーが発生しました';
-                statusDiv.className = 'order-status error';
-            } finally {
-                submitButton.disabled = false;
-                setTimeout(() => {
-                    statusDiv.textContent = '';
-                    statusDiv.className = 'order-status';
-                }, 3000);
-            }
-            
-            return false;
+
+                remainingTime--;
+            }, 1000);
         }
 
-        // 注文履歴の更新
-        function updateOrderHistory(orders) {
-            const historyList = document.getElementById('order-history-list');
-            const seatOrders = orders.filter(o => o.seat === {{ seat }});
-            
-            if (seatOrders.length === 0) {
-                historyList.innerHTML = '<p class="no-orders">注文履歴はありません</p>';
-                return;
-            }
-
-            historyList.innerHTML = seatOrders.map(order => `
-                <div class="history-item ${order.checked ? 'completed' : ''} ${order.expired ? 'expired' : ''}">
-                    <div class="history-item-content">
-                        <span class="history-item-name">${order.menu_name}</span>
-                        <span class="history-item-quantity">${order.quantity}人前</span>
-                    </div>
-                    <div class="history-item-time">${order.time}</div>
-                    <div class="history-item-status">
-                        ${order.checked ? '提供済み' : (order.expired ? '時間切れ' : '調理中')}
-                    </div>
-                </div>
-            `).join('');
-        }
-        
-        // 定期的にタイマー状態を確認（5秒ごと）
-        setInterval(checkTimerStatus, 5000);
-        // 初回実行
-        checkTimerStatus();
-
-        // タッチデバイスのサポートを追加
-        document.addEventListener('DOMContentLoaded', function() {
-            const buttons = document.querySelectorAll('.select-button');
-            buttons.forEach(button => {
-                button.addEventListener('touchstart', function(e) {
-                    e.preventDefault(); // デフォルトのタッチ動作を防止
-                    this.click(); // クリックイベントを発火
-                });
-            });
+        document.addEventListener('DOMContentLoaded', () => {
+            startCountdown(80); // Start countdown with 80 minutes
         });
     </script>
+</head>
+<body>
+    <header class="menu-header">
+        <h1>{{ course.course_name }}</h1>
+        <p class="price">価格: {{ course.price }}円</p>
+        <p class="description">{{ course.description }}</p>
+    </header>
+
+    <div class="timer-container">
+        <span id="timer-display">残り時間: 80分</span>
+    </div>
+
+    <main class="menu-container">
+        {% for category, items in course.dishes_.items() %}
+            <section class="menu-category">
+                <h2>{{ category }}</h2>
+                <ul class="menu-items">
+                    {% for item in items %}
+                        <li class="menu-item" data-id="{{ item.id }}">
+                            <div class="item-info">
+                                <span class="item-name">{{ item.name }}</span>
+                                <span class="item-name-en">{{ item.name_en }}</span>
+                            </div>
+                            <div class="order-controls">
+                                <button class="quantity-btn" onclick="updateOrder('{{ item.id }}', false)">-</button>
+                                <span class="quantity" id="order-count-{{ item.id }}">0</span>
+                                <button class="quantity-btn" onclick="updateOrder('{{ item.id }}', true)">+</button>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        {% endfor %}
+    </main>
+
+    <footer class="order-footer">
+        <div class="order-summary">
+            <span>現在の注文数: <span id="current-order-count">0</span></span>
+            <button class="order-submit-button" onclick="submitOrder()">注文する</button>
+        </div>
+    </footer>
 </body>
 </html>

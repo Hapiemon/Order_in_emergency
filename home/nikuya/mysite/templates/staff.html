@@ -25,7 +25,6 @@
                         <th>席番号</th>
                         <th>コース</th>
                         <th>メニュー</th>
-                        <th>個数</th>
                         <th>注文時刻</th>
                         <th>タイマー切れ</th>
                         <th>状態</th>
@@ -33,17 +32,14 @@
                 </thead>
                 <tbody>
                     {% for o in orders %}
-                    <tr class="{% if o.expired %}expired{% endif %}">
+                    <tr>
                         <td>{{ o.seat }}</td>
-                        <td>{{ courses[o.course_name].course_name }}</td>
+                        <td>{{ o.course_name }}</td>
                         <td>
-                            {% for item in courses[o.course_name].dishes_ %}
-                                {% if item.id == o.menu_id %}
-                                    {{ item.name }}
-                                {% endif %}
+                            {% for item in o.items %}
+                                {{ item.name }} ({{ item.quantity }})<br>
                             {% endfor %}
                         </td>
-                        <td>{{ o.quantity }}</td>
                         <td>{{ o.time.strftime('%H:%M:%S') }}</td>
                         <td>{% if o.expired %}●{% endif %}</td>
                         <td>
@@ -179,7 +175,6 @@
                     <td>${o.seat}</td>
                     <td>${o.course_name}</td>
                     <td>${o.menu_name}</td>
-                    <td>${o.quantity}</td>
                     <td>${o.time}</td>
                     <td>${o.expired ? '●' : ''}</td>
                     <td>
@@ -225,6 +220,15 @@
         });
 
         setInterval(reloadStaffData, 5000);
+        setInterval(() => {
+            fetch('/timer_update')
+                .then(response => response.json())
+                .then(data => {
+                    // Update timer UI based on server response
+                    updateTimerUI(data);
+                })
+                .catch(error => console.error('Error updating timer:', error));
+        }, 5000);
     </script>
 </body>
-</html> 
+</html>

@@ -14,16 +14,6 @@
             <h2>{{ course_data.course_name }}</h2>
             <p class="price">{{ "{:,}".format(course_data.price) }}円</p>
             <p class="description">{{ course_data.description }}</p>
-            <div class="menu-items">
-                <h3>コース内容：</h3>
-                <ul>
-                {% if course_data.dishes_ is sequence %}
-                    {% for menu_item in course_data.dishes_ %}
-                        <li>{{ menu_item.name }} × {{ menu_item.quantity }}</li>
-                    {% endfor %}
-                {% endif %}
-                </ul>
-            </div>
             <form class="course-form" onsubmit="return false;">
                 <input type="hidden" name="seat" value="{{ seat }}">
                 <input type="hidden" name="course_name" value="{{ course_id }}">
@@ -78,4 +68,4 @@
         });
     </script>
 </body>
-</html> 
+</html>

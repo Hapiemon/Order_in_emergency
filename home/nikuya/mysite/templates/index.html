@@ -7,12 +7,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>席を選んでください</h1>
-    <p>please select your seat</p>
+    <div class="seat-selection-header">
+        <h1>席を選んでください</h1>
+        <p>please select your seat</p>
+    </div>
     <div class="seats">
         {% for seat in seats %}
-            <a class="seat-link" href="/menu/{{ seat }}">{{ seat }}</a>
+            <a class="seat-link" href="/menu/{{ seat }}">席 {{ seat }}</a>
         {% endfor %}
     </div>
 </body>
-</html> 
+</html>
