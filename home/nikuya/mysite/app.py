@@ -158,32 +158,26 @@ def set_course():
 
 @app.route('/order', methods=['POST'])
 def order():
-    seat = int(request.form['seat'])
-    menu_id = request.form['menu_id']
-    quantity = int(request.form['quantity'])
-    course_name = seat_courses.get(seat)
-    
-    if not course_name:
-        return jsonify({'success': False, 'error': 'コースが選択されていません'})
-    
-    # 注文時間が切れている場合は注文を受け付けない
-    now = datetime.now(JST)
-    if seat in seat_timers and now > seat_timers[seat]['order_end']:
-        return jsonify({'success': False, 'error': '注文可能時間が終了しました'})
-    
-    # 注文内容を保存
-    menu_item = next((item for category, items in COURSE_MENUS[course_name]['dishes_'].items() for item in items if item['id'] == menu_id), None)
-    if not menu_item:
-        return jsonify({'success': False, 'error': '無効なメニューIDです'})
+    data = request.get_json()
+    seat = data.get('seat')
+    course = data.get('course')
+    items = data.get('items')
 
-    orders.append({
-        'seat': seat,
-        'course_name': course_name,
-        'dishes': [{'name': menu_item['name'], 'quantity': quantity}],
-        'time': now,
-        'expired': False,
-        'checked': False
-    })
+    if not seat or not course or not items:
+        return jsonify({'success': False, 'error': '不正な注文データです'})
+
+    # 注文データを保存
+    for item in items:
+        orders.append({
+            'seat': seat,
+            'course_name': course,
+            'menu_id': item['id'],
+            'quantity': item['quantity'],
+            'time': datetime.now(JST),
+            'expired': False,
+            'checked': False
+        })
+
     return jsonify({'success': True})
 
 @app.route('/staff')

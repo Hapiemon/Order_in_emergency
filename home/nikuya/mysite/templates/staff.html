@@ -103,99 +103,15 @@
         async function reloadStaffData() {
             const res = await fetch('/staff_data');
             const data = await res.json();
-            
-            // タイマーグリッドの更新
+
             const timerGrid = document.getElementById('timer-grid');
-            const timerHtml = Object.entries(data.timer_info)
-                .sort(([seatA], [seatB]) => parseInt(seatA) - parseInt(seatB))
-                .map(([seat, info]) => {
-                    const orderStatusClass = info.active ? 
-                        (info.order_remaining_minutes < 10 ? 'warning' : 'active') : 
-                        'inactive';
-                    const seatStatusClass = info.active ? 
-                        (info.seat_remaining_minutes < 10 ? 'warning' : 'active') : 
-                        'inactive';
-                    
-                    const orderTimeDisplay = info.active ? 
-                        `注文：${info.order_remaining_minutes}分${info.order_remaining_seconds}秒` :
-                        '未開始';
-                    const seatTimeDisplay = info.active ? 
-                        `席：${info.seat_remaining_minutes}分${info.seat_remaining_seconds}秒` :
-                        '';
-                    
-                    const courseDisplay = info.course ? 
-                        `（${COURSE_MENUS[info.course]?.course_name || '不明なコース'}）` :
-                        '（コース未選択）';
-                    
-                    return `
-                        <div class="timer-card ${orderStatusClass}">
-                            <h3>席 ${seat}</h3>
-                            <div class="timer-info">
-                                <div class="time-display">
-                                    <div class="order-time">${orderTimeDisplay}</div>
-                                    <div class="seat-time">${seatTimeDisplay}</div>
-                                </div>
-                                <div class="course-info">${courseDisplay}</div>
-                                ${info.order_end_time ? `
-                                    <div class="end-time">
-                                        注文終了: ${info.order_end_time}<br>
-                                        退席時間: ${info.seat_end_time}
-                                    </div>
-                                ` : ''}
-                            </div>
-                            ${info.active ? `
-                                <button class="reset-timer" data-seat="${seat}">
-                                    未開始に戻す
-                                </button>
-                            ` : ''}
-                        </div>
-                    `;
-                }).join('');
-            
-            timerGrid.innerHTML = timerHtml;
-
-            // 新しくタイマー切れになった席があれば音を鳴らす
-            const currentExpiredSeats = new Set(data.expired_seats.map(s => s.seat));
-            const previousExpiredSeats = new Set(
-                Array.from(document.querySelectorAll('#expired-list li'))
-                    .map(li => parseInt(li.textContent.match(/席 (\d+)/)[1]))
-            );
-            
-            for (const seat of currentExpiredSeats) {
-                if (!previousExpiredSeats.has(seat)) {
-                    playTimerSound();
-                    break;
-                }
-            }
-
-            // 注文テーブル再描画
-            const tbody = document.querySelector('#orders-table tbody');
-            tbody.innerHTML = data.orders.map((o, i) => `
-                <tr class="${o.expired ? 'expired' : ''}">
-                    <td>${o.seat}</td>
-                    <td>${o.course_name}</td>
-                    <td>${o.menu_name}</td>
-                    <td>${o.time}</td>
-                    <td>${o.expired ? '●' : ''}</td>
-                    <td>
-                        <button class="status-toggle" 
-                                data-index="${i}" 
-                                data-status="${o.checked ? 'ok' : 'cooking'}">
-                            ${o.checked ? 'OK' : '調理中'}
-                        </button>
-                    </td>
-                </tr>
+            timerGrid.innerHTML = Object.entries(data.timer_info).map(([seat, info]) => `
+                <div class="timer-card">
+                    <h3>席 ${seat}</h3>
+                    <p>注文残り時間: ${info.order_remaining_minutes}分 ${info.order_remaining_seconds}秒</p>
+                    <p>席残り時間: ${info.seat_remaining_minutes}分 ${info.seat_remaining_seconds}秒</p>
+                </div>
             `).join('');
-
-            // タイマー切れ席一覧再描画
-            const expiredList = document.getElementById('expired-list');
-            expiredList.innerHTML = data.expired_seats
-                .map(s => `
-                    <li>
-                        席 ${s.seat} (${s.expired_time})
-                        <button class="reset-timer" data-seat="${s.seat}">タイマーリセット</button>
-                    </li>
-                `).join('');
         }
 
         // タイマーリセットボタンのクリックイベント

@@ -60,13 +60,12 @@
             }
         }
 
-        // タッチデバイスのサポートを追加
+        // タッチデバイスのサポートを削除（不要な場合）
         document.addEventListener('DOMContentLoaded', function() {
             const buttons = document.querySelectorAll('.select-button');
             buttons.forEach(button => {
-                button.addEventListener('touchstart', function(e) {
-                    e.preventDefault(); // デフォルトのタッチ動作を防止
-                    this.click(); // クリックイベントを発火
+                button.addEventListener('click', function(e) {
+                    selectCourse(this.form);
                 });
             });
         });
