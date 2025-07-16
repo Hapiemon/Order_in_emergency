@@ -5,7 +5,7 @@
     "order_time": 80,
     "seat_time": 20,
   "dishes_": {
-    "additional": [
+    "Wagyu": [
       { "id": "wagyu01", "name": "和牛特上カルビ", "name_en": "Wagyu Supreme Rib" },
       { "id": "wagyu02", "name": "和牛上カルビ", "name_en": "Wagyu Premium Rib" },
       { "id": "wagyu03", "name": "和牛旨味カルビ", "name_en": "Wagyu Umami Rib" },
@@ -13,44 +13,51 @@
       { "id": "wagyu05", "name": "和牛シンタマ", "name_en": "Wagyu Chuck Tender" },
       { "id": "wagyu06", "name": "和牛ランイチ", "name_en": "Wagyu Sirloin Tip" },
       { "id": "wagyu09", "name": "肉屋の和牛焼きしゃぶ 紅", "name_en": "Wagyu Shabu Red" },
-      { "id": "wagyu10", "name": "肉屋の和牛焼きしゃぶ 白", "name_en": "Wagyu Shabu White" },
+      { "id": "wagyu10", "name": "肉屋の和牛焼きしゃぶ 白", "name_en": "Wagyu Shabu White" }
+    ],
+    
+    "Beef": [
       { "id": "ex01", "name": "牛タン", "name_en": "Sliced Beef Tongue" },
       { "id": "ex02", "name": "厚切り牛タン", "name_en": "Thick Beef Tongue" },
       { "id": "ex03", "name": "ハラミ", "name_en": "Beef Skirt Steaks" },
-      { "id": "ex04", "name": "ハラミステーキ", "name_en": "Dynamic Cut Beef Skirt Steak" }
-    ],
-    "common": [
+      { "id": "ex04", "name": "ハラミステーキ", "name_en": "Dynamic Cut Beef Skirt Steak" },
       { "id": "beef01", "name": "牛バラ", "name_en": "Beef Rib" },
       { "id": "beef02", "name": "肉屋の牛カルビ", "name_en": "Nikuya Beef Rib" },
       { "id": "beef03", "name": "牛ロース", "name_en": "Beef Loin" },
-      { "id": "beef04", "name": "大判牛ロース", "name_en": "Large Beef Loin" },
-
+      { "id": "beef04", "name": "大判牛ロース", "name_en": "Large Beef Loin" }
+    ],
+    "Pork": [
       { "id": "pork01", "name": "豚バラ", "name_en": "Pork Belly" },
       { "id": "pork02", "name": "豚肩ロース", "name_en": "Pork Shoulder" },
       { "id": "pork03", "name": "豚トロ", "name_en": "Pork Jowl" },
       { "id": "pork05", "name": "ウィンナー", "name_en": "Sausages" },
-      { "id": "pork04", "name": "厚切りベーコン", "name_en": "Bacon" },
-
-      { "id": "chicken01", "name": "鶏もも肉", "name_en": "Chicken Thigh" },
-
+      { "id": "pork04", "name": "厚切りベーコン", "name_en": "Bacon" }
+    ],
+    "Chicken": [
+      { "id": "chicken01", "name": "鶏もも肉", "name_en": "Chicken Thigh" }
+    ],
+    "Offal": [
       { "id": "offal01", "name": "やわらか旨豚ホルモン", "name_en": "Tender Pork Offal" },
       { "id": "offal02", "name": "絶品！旨味噌ホルモン", "name_en": "Miso Pork Offal" },
       { "id": "offal03", "name": "ミノ", "name_en": "Beef Tripe (Mino)" },
       { "id": "offal04", "name": "レバー", "name_en": "Beef Liver" },
       { "id": "offal05", "name": "壺漬けホルモンミックス", "name_en": "Marinated Horumon Mix" },
-      { "id": "offal06", "name": "熟成漬け豚ハラミ", "name_en": "Aged Marinated Pork Skirt" },
-
+      { "id": "offal06", "name": "熟成漬け豚ハラミ", "name_en": "Aged Marinated Pork Skirt" }
+    ],
+    "Rice": [
       { "id": "rice01", "name": "肉屋のTKG しょうゆ", "name_en": "Rice with Raw Egg and Soy Sauce" },
       { "id": "rice02", "name": "肉屋のTKG 塩", "name_en": "Rice with Raw Egg and Salt" },
       { "id": "rice03", "name": "肉屋のTKG 自家製肉味噌", "name_en": "Rice with Raw Egg and Homemade Meat Miso" },
       { "id": "rice04", "name": "肉屋のTKG ネギ油", "name_en": "Rice with Raw Egg, Green Onion and Sesame Oil" },
       { "id": "rice05", "name": "肉味噌ビビンバ", "name_en": "Bibimbap" },
-      { "id": "rice06", "name": "チーズビビンバ", "name_en": "Cheese Bibimbap for Grilling" },
-
+      { "id": "rice06", "name": "チーズビビンバ", "name_en": "Cheese Bibimbap for Grilling" }
+    ],
+    "Noodle": [
       { "id": "noodle01", "name": "肉屋の自家製肉味噌まぜそば", "name_en": "Noodles with Korean Meat Paste" },
       { "id": "noodle02", "name": "冷麺", "name_en": "Cold Noodles" },
-      { "id": "noodle03", "name": "冷麺（梅味）", "name_en": "Cold Noodles (Plum Flavor)" },
-
+      { "id": "noodle03", "name": "冷麺（梅味）", "name_en": "Cold Noodles (Plum Flavor)" }
+    ],
+    "Side": [
       { "id": "side01", "name": "焼き野菜盛り", "name_en": "Vegetables Assortment for Grilling" },
       { "id": "side02", "name": "白菜キムチ", "name_en": "Napa Cabbage Kimchi" },
       { "id": "side03", "name": "カクテキ", "name_en": "Radish Kimchi" },
@@ -65,13 +72,17 @@
       { "id": "side14", "name": "肉屋のサラダ", "name_en": "Sesame and Salted Salad" },
       { "id": "side15", "name": "韓国のり", "name_en": "Korean Seaweed" },
       { "id": "side22", "name": "チヂミ", "name_en": "Chijimi (Korean Pancake)" },
-      { "id": "side28", "name": "にんにく焼き（コーンバター）", "name_en": "Garlic with Corn Butter" },
-      { "id": "side30", "name": "炊き餃子", "name_en": "Steamed Dumplings" },
-      { "id": "side31", "name": "海鮮アヒージョ", "name_en": "Seafood Ajillo" },
-      { "id": "side32", "name": "4種のきのこのバター焼き", "name_en": "4 Mushroom Butter Grill" },
       { "id": "side33", "name": "蒸し鶏のゴマドレサラダ", "name_en": "Steamed Chicken and Seasoned Sesame Salad" },
-      { "id": "side34", "name": "塩だれキャベツ", "name_en": "Salted Cabbage" },
-      
+      { "id": "side34", "name": "塩だれキャベツ", "name_en": "Salted Cabbage" }
+    ],
+    "Foil": [
+      { "id": "foil01", "name": "にんにく焼き", "name_en": "Garlic with Sesame Oil Foil" },
+      { "id": "foil02", "name": "炊き餃子", "name_en": "Steamed Dumplings Foil" },
+      { "id": "foil03", "name": "海鮮アヒージョ", "name_en": "Seafood Ajillo Foil" },
+      { "id": "foil04", "name": "4種のきのこのバター焼き", "name_en": "Mushroom Butter Foil" },
+      { "id": "foil05", "name": "コーンバター", "name_en": "Corn Butter Foil" }
+    ],
+    "Dessert": [
       { "id": "dessert01", "name": "フルーツポンチ", "name_en": "Assorted Fruit in Soda" },
       { "id": "dessert02", "name": "抹茶アイス", "name_en": "Matcha Ice Cream" },
       { "id": "dessert03", "name": "チョコレートアイス", "name_en": "Chocolate Ice Cream" },
