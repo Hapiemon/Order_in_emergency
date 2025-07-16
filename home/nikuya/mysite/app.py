@@ -260,9 +260,16 @@ def staff_data():
     
     def serialize_order(o):
         course = COURSE_MENUS[o['course_name']]
-        menu_item = next((item for item in course['dishes_'] if item['id'] == o['menu_id']), None)
+        menu_item = None
+
+        # dishes_を辞書として扱い、カテゴリー内のアイテムを検索
+        for category, items in course['dishes_'].items():
+            menu_item = next((item for item in items if item['id'] == o['menu_id']), None)
+            if menu_item:
+                break
+
         menu_name = menu_item['name'] if menu_item else '不明なメニュー'
-        
+
         return {
             'seat': o['seat'],
             'course_name': course['course_name'],
