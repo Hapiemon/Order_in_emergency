@@ -26,6 +26,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+# カスタムフィルターの追加
+@app.template_filter('fromjson')
+def fromjson_filter(s):
+    try:
+        return json.loads(s) if s else []
+    except (json.JSONDecodeError, TypeError):
+        return []
+
 # 注文モデル
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -68,7 +76,7 @@ def order():
 def staff():
     # スタッフページの処理
     orders = Order.query.order_by(Order.order_time.desc()).all()
-    return render_template('staff.html', orders=orders)
+    return render_template('staff.html', orders=orders, expired_seats=expired_seats)
 
 # 席番号リスト
 SEATS = [21,22,23,24,25,31,32,33,34,35,36,37,38,41,42,43,44,45,46,47,48,51,52,53]
@@ -253,39 +261,30 @@ def staff_data():
     expired = expired_seats
     now = datetime.now(JST)
     
-    # 各席のタイマー情報を取得
+    # 各席のタイマー情報を取得（アクティブなタイマーのみ）
     timer_info = {}
     for seat in SEATS:
         if seat in seat_timers:
             order_remaining = seat_timers[seat]['order_end'] - now
             seat_remaining = seat_timers[seat]['seat_end'] - now
             
-            order_minutes = max(0, int(order_remaining.total_seconds() / 60))
-            order_seconds = max(0, int(order_remaining.total_seconds() % 60))
-            seat_minutes = max(0, int(seat_remaining.total_seconds() / 60))
-            seat_seconds = max(0, int(seat_remaining.total_seconds() % 60))
-            
-            timer_info[seat] = {
-                'active': order_remaining.total_seconds() > 0 or seat_remaining.total_seconds() > 0,
-                'order_remaining_minutes': order_minutes,
-                'order_remaining_seconds': order_seconds,
-                'seat_remaining_minutes': seat_minutes,
-                'seat_remaining_seconds': seat_seconds,
-                'order_end_time': format_jst_time(seat_timers[seat]['order_end']),
-                'seat_end_time': format_jst_time(seat_timers[seat]['seat_end']),
-                'course': seat_courses.get(seat, None)
-            }
-        else:
-            timer_info[seat] = {
-                'active': False,
-                'order_remaining_minutes': 0,
-                'order_remaining_seconds': 0,
-                'seat_remaining_minutes': 0,
-                'seat_remaining_seconds': 0,
-                'order_end_time': None,
-                'seat_end_time': None,
-                'course': seat_courses.get(seat, None)
-            }
+            # アクティブなタイマーがある場合のみ追加
+            if order_remaining.total_seconds() > 0 or seat_remaining.total_seconds() > 0:
+                order_minutes = max(0, int(order_remaining.total_seconds() / 60))
+                order_seconds = max(0, int(order_remaining.total_seconds() % 60))
+                seat_minutes = max(0, int(seat_remaining.total_seconds() / 60))
+                seat_seconds = max(0, int(seat_remaining.total_seconds() % 60))
+                
+                timer_info[seat] = {
+                    'active': True,
+                    'order_remaining_minutes': order_minutes,
+                    'order_remaining_seconds': order_seconds,
+                    'seat_remaining_minutes': seat_minutes,
+                    'seat_remaining_seconds': seat_seconds,
+                    'order_end_time': format_jst_time(seat_timers[seat]['order_end']),
+                    'seat_end_time': format_jst_time(seat_timers[seat]['seat_end']),
+                    'course': seat_courses.get(seat, None)
+                }
     
     def serialize_order(o):
         course = COURSE_MENUS[o['course_name']]
@@ -382,15 +381,17 @@ def timer_update():
     for seat, timers in seat_timers.items():
         order_remaining = timers['order_end'] - now
         seat_remaining = timers['seat_end'] - now
-
-        timer_info[seat] = {
-            'order_remaining_minutes': max(0, int(order_remaining.total_seconds() / 60)),
-            'order_remaining_seconds': max(0, int(order_remaining.total_seconds() % 60)),
-            'seat_remaining_minutes': max(0, int(seat_remaining.total_seconds() / 60)),
-            'seat_remaining_seconds': max(0, int(seat_remaining.total_seconds() % 60)),
-            'order_end_time': format_jst_time(timers['order_end']),
-            'seat_end_time': format_jst_time(timers['seat_end']),
-        }
+        
+        # アクティブなタイマーがある場合のみ追加
+        if order_remaining.total_seconds() > 0 or seat_remaining.total_seconds() > 0:
+            timer_info[seat] = {
+                'order_remaining_minutes': max(0, int(order_remaining.total_seconds() / 60)),
+                'order_remaining_seconds': max(0, int(order_remaining.total_seconds() % 60)),
+                'seat_remaining_minutes': max(0, int(seat_remaining.total_seconds() / 60)),
+                'seat_remaining_seconds': max(0, int(seat_remaining.total_seconds() % 60)),
+                'order_end_time': format_jst_time(timers['order_end']),
+                'seat_end_time': format_jst_time(timers['seat_end']),
+            }
 
     return jsonify(timer_info)
 

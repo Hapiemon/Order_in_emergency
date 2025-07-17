@@ -41,6 +41,7 @@
                             {% endfor %}
                         </td>
                         <td>{{ order.order_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>-</td>
                         <td>{{ order.status }}</td>
                     </tr>
                     {% endfor %}
@@ -98,13 +99,19 @@
             const data = await res.json();
 
             const timerGrid = document.getElementById('timer-grid');
-            timerGrid.innerHTML = Object.entries(data.timer_info).map(([seat, info]) => `
-                <div class="timer-card">
-                    <h3>席 ${seat}</h3>
-                    <p>注文残り時間: ${info.order_remaining_minutes}分 ${info.order_remaining_seconds}秒</p>
-                    <p>席残り時間: ${info.seat_remaining_minutes}分 ${info.seat_remaining_seconds}秒</p>
-                </div>
-            `).join('');
+            // アクティブなタイマーがある席のみ表示
+            const activeTimers = Object.entries(data.timer_info);
+            if (activeTimers.length === 0) {
+                timerGrid.innerHTML = '<p>現在カウントダウン中の席はありません</p>';
+            } else {
+                timerGrid.innerHTML = activeTimers.map(([seat, info]) => `
+                    <div class="timer-card">
+                        <h3>席 ${seat} (${info.course || '不明'})</h3>
+                        <p>注文残り時間: ${info.order_remaining_minutes}分 ${info.order_remaining_seconds}秒</p>
+                        <p>席残り時間: ${info.seat_remaining_minutes}分 ${info.seat_remaining_seconds}秒</p>
+                    </div>
+                `).join('');
+            }
         }
 
         // タイマーリセットボタンのクリックイベント
@@ -134,13 +141,18 @@
             const timerData = await response.json();
 
             const timerGrid = document.getElementById('timer-grid');
-            timerGrid.innerHTML = Object.entries(timerData).map(([seat, info]) => `
-                <div class="timer-card">
-                    <h3>席 ${seat}</h3>
-                    <p>注文残り時間: ${info.order_remaining_minutes}分 ${info.order_remaining_seconds}秒</p>
-                    <p>席残り時間: ${info.seat_remaining_minutes}分 ${info.seat_remaining_seconds}秒</p>
-                </div>
-            `).join('');
+            const activeTimers = Object.entries(timerData);
+            if (activeTimers.length === 0) {
+                timerGrid.innerHTML = '<p>現在カウントダウン中の席はありません</p>';
+            } else {
+                timerGrid.innerHTML = activeTimers.map(([seat, info]) => `
+                    <div class="timer-card">
+                        <h3>席 ${seat}</h3>
+                        <p>注文残り時間: ${info.order_remaining_minutes}分 ${info.order_remaining_seconds}秒</p>
+                        <p>席残り時間: ${info.seat_remaining_minutes}分 ${info.seat_remaining_seconds}秒</p>
+                    </div>
+                `).join('');
+            }
         }, 5000);
     </script>
 </body>
