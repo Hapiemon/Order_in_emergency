@@ -52,24 +52,37 @@ def init_db():
 # 注文を保存するエンドポイント
 @app.route('/order', methods=['POST'])
 def order():
-    data = request.get_json()
-    seat_number = data.get('seat')
-    course_name = data.get('course')
-    menu_items = data.get('items')  # JSON形式のリスト
+    try:
+        print("=== ORDER ENDPOINT CALLED ===")
+        data = request.get_json()
+        print(f"Received data: {data}")
+        
+        seat_number = data.get('seat')
+        course_name = data.get('course')
+        menu_items = data.get('items')  # JSON形式のリスト
+        
+        print(f"Parsed - seat: {seat_number}, course: {course_name}, items: {menu_items}")
 
-    if not seat_number or not course_name or not menu_items:
-        return jsonify({'success': False, 'error': 'Invalid order data'})
+        if not seat_number or not course_name or not menu_items:
+            print("Missing required fields")
+            return jsonify({'success': False, 'error': 'Invalid order data'})
 
-    # 注文をデータベースに保存
-    new_order = Order(
-        seat_number=seat_number,
-        course_name=course_name,
-        menu_items=json.dumps(menu_items)
-    )
-    db.session.add(new_order)
-    db.session.commit()
+        # 注文をデータベースに保存
+        new_order = Order(
+            seat_number=seat_number,
+            course_name=course_name,
+            menu_items=json.dumps(menu_items)
+        )
+        print(f"Created order object: {new_order}")
+        
+        db.session.add(new_order)
+        db.session.commit()
+        print("Order saved to database successfully")
 
-    return jsonify({'success': True, 'message': 'Order placed successfully!'})
+        return jsonify({'success': True, 'message': 'Order placed successfully!'})
+    except Exception as e:
+        print(f"Error in order endpoint: {e}")
+        return jsonify({'success': False, 'error': str(e)})
 
 # スタッフページ用エンドポイント
 @app.route('/staff')
@@ -365,14 +378,6 @@ def show_menu(course_id):
         return render_template('menu.html', course=course_data)
     else:
         return "Course not found", 404
-
-@app.route('/order', methods=['POST'])
-def handle_order():
-    data = request.get_json()
-    item_id = data.get('itemId')
-    quantity = data.get('quantity')
-    # Process the order (e.g., save to database or update session)
-    return jsonify({"success": True, "itemId": item_id, "quantity": quantity})
 
 @app.route('/timer_update', methods=['GET'])
 def timer_update():

@@ -25,17 +25,22 @@
         }
 
         function submitOrder() {
+            console.log("=== SUBMIT ORDER CALLED ===");
             const seat = {{ seat }};
             const course = "{{ course.course_name }}";
             const items = [];
 
             document.querySelectorAll('.menu-item').forEach(item => {
                 const id = item.getAttribute('data-id');
-                const quantity = parseInt(item.querySelector('.order-count').textContent);
+                const countElement = item.querySelector('.order-count');
+                const quantity = parseInt(countElement ? countElement.textContent : '0');
+                console.log(`Item ${id}: quantity = ${quantity}`);
                 if (quantity > 0) {
                     items.push({ id, quantity });
                 }
             });
+
+            console.log(`Seat: ${seat}, Course: ${course}, Items:`, items);
 
             if (items.length === 0) {
                 alert('注文するメニューを選択してください');
@@ -47,15 +52,23 @@
             submitButton.disabled = true;
             submitButton.textContent = '送信中...';
 
+            const orderData = { seat, course, items };
+            console.log('Sending order data:', orderData);
+
             fetch('/order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ seat, course, items })
+                body: JSON.stringify(orderData)
             })
-            .then(response => response.json())
+            .then(response => {
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                return response.json();
+            })
             .then(data => {
+                console.log('Response data:', data);
                 if (data.success) {
                     alert('注文が送信されました！');
                     // 注文数量をリセット
@@ -69,7 +82,7 @@
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
+                console.error('Fetch error:', error);
                 alert('注文に失敗しました');
             })
             .finally(() => {
@@ -173,7 +186,7 @@
                             </div>
                             <div class="order-controls">
                                 <button class="quantity-btn" onclick="updateOrder('{{ item.id }}', false)">-</button>
-                                <span class="quantity" id="order-count-{{ item.id }}">0</span>
+                                <span class="quantity order-count" id="order-count-{{ item.id }}">0</span>
                                 <button class="quantity-btn" onclick="updateOrder('{{ item.id }}', true)">+</button>
                             </div>
                         </li>
