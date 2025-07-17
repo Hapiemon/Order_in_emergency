@@ -25,40 +25,37 @@
         }
 
         function submitOrder() {
-            if (currentOrderCount > 0) {
-                fetch(`/order`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        seat: selectedSeat,
-                        course: selectedCourse,
-                        items: Array.from(document.querySelectorAll('.menu-item')).map(item => {
-                            const itemId = item.getAttribute('data-id');
-                            const quantity = parseInt(document.getElementById(`order-count-${itemId}`).textContent);
-                            return { id: itemId, quantity };
-                        }).filter(item => item.quantity > 0)
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('注文成功！');
-                        currentOrderCount = 0;
-                        document.getElementById('current-order-count').textContent = currentOrderCount;
-                        document.querySelectorAll('.menu-item .order-count').forEach(count => count.textContent = '0');
-                    } else {
-                        alert('注文に失敗しました: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('注文に失敗しました');
-                });
-            } else {
-                alert('注文数が0です。');
-            }
+            const seat = {{ seat }};
+            const course = "{{ course.course_name }}";
+            const items = [];
+
+            document.querySelectorAll('.menu-item').forEach(item => {
+                const id = item.getAttribute('data-id');
+                const quantity = parseInt(item.querySelector('.order-count').textContent);
+                if (quantity > 0) {
+                    items.push({ id, quantity });
+                }
+            });
+
+            fetch('/order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ seat, course, items })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('注文が送信されました！');
+                } else {
+                    alert('注文に失敗しました: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('注文に失敗しました');
+            });
         }
 
         // コース選択時にタイマーを開始

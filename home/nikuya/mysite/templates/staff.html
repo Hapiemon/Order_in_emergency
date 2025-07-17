@@ -31,24 +31,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for o in orders %}
+                    {% for order in orders %}
                     <tr>
-                        <td>{{ o.seat }}</td>
-                        <td>{{ o.course_name }}</td>
+                        <td>{{ order.seat_number }}</td>
+                        <td>{{ order.course_name }}</td>
                         <td>
-                            {% for dish in o.dishes %}
-                                {{ dish.name }} ({{ dish.quantity }})<br>
+                            {% for item in order.menu_items | fromjson %}
+                                {{ item.id }}: {{ item.quantity }}<br>
                             {% endfor %}
                         </td>
-                        <td>{{ o.time.strftime('%H:%M:%S') }}</td>
-                        <td>{% if o.expired %}●{% endif %}</td>
-                        <td>
-                            <button class="status-toggle" 
-                                    data-index="{{ loop.index0 }}" 
-                                    data-status="{% if o.checked %}ok{% else %}cooking{% endif %}">
-                                {% if o.checked %}OK{% else %}調理中{% endif %}
-                            </button>
-                        </td>
+                        <td>{{ order.order_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        <td>{{ order.status }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
+import os
+import json
+import pytz
 import threading
 import time
-import json
-import os
-import pytz
 
 app = Flask(__name__)
 
@@ -18,6 +19,56 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 
 app.static_folder = STATIC_DIR
 app.template_folder = TEMPLATES_DIR
+
+# MySQLデータベースの設定
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://nikuya:Kids1109@nikuya.mysql.pythonanywhere-services.com/nikuya$nikuya_orders'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
+# 注文モデル
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    seat_number = db.Column(db.Integer, nullable=False)
+    course_name = db.Column(db.String(255), nullable=False)
+    menu_items = db.Column(db.Text, nullable=False)  # JSON形式で保存
+    order_time = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(50), default='cooking')  # 'cooking' or 'ok'
+
+# データベース初期化用エンドポイント
+@app.route('/init_db')
+def init_db():
+    db.create_all()
+    return "Database initialized!"
+
+# 注文を保存するエンドポイント
+@app.route('/order', methods=['POST'])
+def order():
+    data = request.get_json()
+    seat_number = data.get('seat')
+    course_name = data.get('course')
+    menu_items = data.get('items')  # JSON形式のリスト
+
+    if not seat_number or not course_name or not menu_items:
+        return jsonify({'success': False, 'error': 'Invalid order data'})
+
+    # 注文をデータベースに保存
+    new_order = Order(
+        seat_number=seat_number,
+        course_name=course_name,
+        menu_items=json.dumps(menu_items)
+    )
+    db.session.add(new_order)
+    db.session.commit()
+
+    return jsonify({'success': True, 'message': 'Order placed successfully!'})
+
+# スタッフページ用エンドポイント
+@app.route('/staff')
+def staff():
+    # スタッフページの処理
+    orders = Order.query.order_by(Order.order_time.desc()).all()
+    return render_template('staff.html', orders=orders)
 
 # 席番号リスト
 SEATS = [21,22,23,24,25,31,32,33,34,35,36,37,38,41,42,43,44,45,46,47,48,51,52,53]
@@ -156,38 +207,16 @@ def set_course():
         'redirect': url_for('menu', seat=seat)
     })
 
-@app.route('/order', methods=['POST'])
-def order():
-    data = request.get_json()
-    seat = data.get('seat')
-    course = data.get('course')
-    items = data.get('items')
+@app.route('/order_check', methods=['POST'])
+def order_check():
+    index = int(request.form['index'])
+    checked = request.form['checked'] == 'true'
 
-    if not seat or not course or not items:
-        return jsonify({'success': False, 'error': '不正な注文データです'})
+    if 0 <= index < len(orders):
+        orders[index]['checked'] = checked
+        return jsonify({'success': True})
 
-    # 注文データを保存
-    for item in items:
-        orders.append({
-            'seat': seat,
-            'course_name': course,
-            'menu_id': item['id'],
-            'quantity': item['quantity'],
-            'time': datetime.now(JST),
-            'expired': False,
-            'checked': False
-        })
-
-    return jsonify({'success': True})
-
-@app.route('/staff')
-def staff():
-    # 新着順で注文を表示
-    sorted_orders = sorted(orders, key=lambda x: x['time'], reverse=True)
-    return render_template('staff.html', 
-                         orders=sorted_orders, 
-                         courses=COURSE_MENUS, 
-                         expired_seats=expired_seats)
+    return jsonify({'success': False, 'error': '無効なインデックスです'})
 
 @app.route('/reset_timer/<int:seat>', methods=['POST'])
 def reset_timer(seat):
@@ -365,5 +394,52 @@ def timer_update():
 
     return jsonify(timer_info)
 
+@app.route('/create_order_table', methods=['GET'])
+def create_order_table():
+    try:
+        # SQLAlchemyを使用してテーブルを作成
+        db.create_all()
+        return "Order table created successfully!"
+    except Exception as e:
+        return f"An error occurred: {e}"
+
+# add_orderエンドポイントの修正
+@app.route('/add_order', methods=['POST'])
+def add_order():
+    try:
+        seat_number = request.form['seat_number']
+        course_name = request.form['course_name']
+
+        # SQLAlchemyを使用して注文を追加
+        new_order = Order(seat_number=seat_number, course_name=course_name, menu_items="[]")
+        db.session.add(new_order)
+        db.session.commit()
+
+        return jsonify({"success": True, "message": "Order added successfully!"})
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+# get_ordersエンドポイントの修正
+@app.route('/get_orders', methods=['GET'])
+def get_orders():
+    try:
+        # SQLAlchemyを使用して注文を取得
+        orders = Order.query.all()
+        orders_list = [
+            {
+                "id": order.id,
+                "seat_number": order.seat_number,
+                "course_name": order.course_name,
+                "menu_items": json.loads(order.menu_items),
+                "order_time": order.order_time.strftime('%Y-%m-%d %H:%M:%S'),
+                "status": order.status
+            }
+            for order in orders
+        ]
+        return jsonify(orders_list)
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    # PythonAnywhereではデバッグモードを無効化
+    app.run()
