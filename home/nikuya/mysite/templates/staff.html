@@ -23,13 +23,18 @@
                 {% for order in orders %}
                 <div class="order-item" data-order-id="{{ order.id }}" onclick="toggleOrderStatus(this)">
                     <div class="order-content">
-                        <span class="order-info">
-                            ({{ order.seat_number }}, {{ order.course_name }}, 
-                            {% for item in order.menu_items | fromjson %}
-                                {{ item.id | get_menu_name(order.course_name) }}×{{ item.quantity }}{% if not loop.last %}, {% endif %}
-                            {% endfor %}, 
-                            {{ order.order_time.strftime('%H:%M') }})
-                        </span>
+                        <div class="order-time">{{ order.order_time.strftime('%H:%M') }}</div>
+                        <div class="order-details">
+                            <div class="seat-and-course">
+                                <span class="seat-number">{{ order.seat_number }}</span>
+                                <span class="course-name">{{ order.course_name }}</span>
+                            </div>
+                            <div class="order-menus">
+                                {% for item in order.menu_items | fromjson %}
+                                <div class="menu-item-line">{{ item.id | get_menu_name(order.course_name) }} × {{ item.quantity }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
