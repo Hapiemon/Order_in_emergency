@@ -17,7 +17,7 @@
             <form class="course-form" onsubmit="return false;">
                 <input type="hidden" name="seat" value="{{ seat }}">
                 <input type="hidden" name="course_name" value="{{ course_id }}">
-                <button type="button" class="select-button" onclick="selectCourse(this.form)">このコースを選択</button>
+                <button type="button" class="select-button">このコースを選択</button>
             </form>
             <div class="error-message" style="display: none; color: red; margin-top: 10px;"></div>
         </div>
@@ -60,12 +60,13 @@
             }
         }
 
-        // タッチデバイスのサポートを削除（不要な場合）
+        // DOMContentLoadedイベントでイベントリスナーを設定
         document.addEventListener('DOMContentLoaded', function() {
             const buttons = document.querySelectorAll('.select-button');
             buttons.forEach(button => {
                 button.addEventListener('click', function(e) {
-                    selectCourse(this.form);
+                    e.preventDefault();
+                    selectCourse(this.closest('form'));
                 });
             });
         });
