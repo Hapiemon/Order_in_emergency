@@ -37,6 +37,16 @@
                 }
             });
 
+            if (items.length === 0) {
+                alert('注文するメニューを選択してください');
+                return;
+            }
+
+            // 注文ボタンを無効化
+            const submitButton = document.querySelector('.order-submit-button');
+            submitButton.disabled = true;
+            submitButton.textContent = '送信中...';
+
             fetch('/order', {
                 method: 'POST',
                 headers: {
@@ -48,6 +58,12 @@
             .then(data => {
                 if (data.success) {
                     alert('注文が送信されました！');
+                    // 注文数量をリセット
+                    document.querySelectorAll('.order-count').forEach(count => {
+                        count.textContent = '0';
+                    });
+                    currentOrderCount = 0;
+                    document.getElementById('current-order-count').textContent = currentOrderCount;
                 } else {
                     alert('注文に失敗しました: ' + data.error);
                 }
@@ -55,6 +71,11 @@
             .catch(error => {
                 console.error('Error:', error);
                 alert('注文に失敗しました');
+            })
+            .finally(() => {
+                // ボタンを元に戻す
+                submitButton.disabled = false;
+                submitButton.textContent = '注文する';
             });
         }
 
@@ -116,6 +137,15 @@
                     timerDisplay.textContent = `残り時間: ${info.order_remaining_minutes}分 ${info.order_remaining_seconds}秒`;
                 }, 1000);
             }
+
+            // 注文ボタンにイベントリスナーを追加
+            const orderButton = document.querySelector('.order-submit-button');
+            if (orderButton) {
+                orderButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    submitOrder();
+                });
+            }
         });
     </script>
 </head>
@@ -156,7 +186,7 @@
     <footer class="order-footer">
         <div class="order-summary">
             <span>現在の注文数: <span id="current-order-count">0</span></span>
-            <button class="order-submit-button" onclick="submitOrder()">注文する</button>
+            <button class="order-submit-button">注文する</button>
         </div>
     </footer>
 </body>
