@@ -14,7 +14,7 @@
             <h2>{{ course_data.course_name }}</h2>
             <p class="price">{{ "{:,}".format(course_data.price) }}円</p>
             <p class="description">{{ course_data.description }}</p>
-            <form class="course-form" onsubmit="return false;">
+            <form class="course-form" onsubmit="event.preventDefault(); return false;">
                 <input type="hidden" name="seat" value="{{ seat }}">
                 <input type="hidden" name="course_name" value="{{ course_id }}">
                 <button type="button" class="select-button">このコースを選択</button>
@@ -25,17 +25,33 @@
     </div>
 
     <script>
+        let isProcessing = false; // グローバルな処理状態フラグ
+
         async function selectCourse(form) {
+            // 既に処理中の場合は何もしない
+            if (isProcessing) {
+                return;
+            }
+
             const formData = new FormData(form);
             const submitButton = form.querySelector('button');
             const errorDiv = form.parentElement.querySelector('.error-message');
+
+            // ボタンが既に処理中の場合は何もしない
+            if (submitButton.disabled) {
+                return;
+            }
 
             if (!confirm('このコースで開始します。よろしいですか？')) {
                 return;
             }
 
             try {
+                // グローバルフラグと個別ボタンの両方を無効化
+                isProcessing = true;
                 submitButton.disabled = true;
+                submitButton.textContent = '処理中...';
+                
                 const response = await fetch('{{ url_for("set_course") }}', {
                     method: 'POST',
                     headers: {
@@ -47,16 +63,21 @@
                 const data = await response.json();
 
                 if (data.success) {
+                    // 成功時は即座にリダイレクト
                     window.location.href = data.redirect;
                 } else {
                     errorDiv.textContent = data.error || 'コースの選択に失敗しました';
                     errorDiv.style.display = 'block';
                     submitButton.disabled = false;
+                    submitButton.textContent = 'このコースを選択';
+                    isProcessing = false;
                 }
             } catch (error) {
                 errorDiv.textContent = 'エラーが発生しました';
                 errorDiv.style.display = 'block';
                 submitButton.disabled = false;
+                submitButton.textContent = 'このコースを選択';
+                isProcessing = false;
             }
         }
 
@@ -64,10 +85,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             const buttons = document.querySelectorAll('.select-button');
             buttons.forEach(button => {
+                // 既存のイベントリスナーがある場合は削除
+                button.removeEventListener('click', selectCourse);
+                
                 button.addEventListener('click', function(e) {
                     e.preventDefault();
+                    e.stopPropagation();
                     selectCourse(this.closest('form'));
-                });
+                }, { once: false }); // onceオプションは使わない（エラー時の再試行のため）
             });
         });
     </script>
