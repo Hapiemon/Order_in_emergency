@@ -19,34 +19,21 @@
 
         <div class="orders-section">
             <h2>新着注文一覧</h2>
-            <table class="orders-table" id="orders-table">
-                <thead>
-                    <tr>
-                        <th>席番号</th>
-                        <th>コース</th>
-                        <th>メニュー</th>
-                        <th>注文時刻</th>
-                        <th>タイマー切れ</th>
-                        <th>状態</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for order in orders %}
-                    <tr>
-                        <td>{{ order.seat_number }}</td>
-                        <td>{{ order.course_name }}</td>
-                        <td>
+            <div class="orders-list" id="orders-list">
+                {% for order in orders %}
+                <div class="order-item" data-order-id="{{ order.id }}" onclick="toggleOrderStatus(this)">
+                    <div class="order-content">
+                        <span class="order-info">
+                            ({{ order.seat_number }}, {{ order.course_name }}, 
                             {% for item in order.menu_items | fromjson %}
-                                {{ item.id | get_menu_name(order.course_name) }}: {{ item.quantity }}個<br>
-                            {% endfor %}
-                        </td>
-                        <td>{{ order.order_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>
-                        <td>-</td>
-                        <td>{{ order.status }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                                {{ item.id | get_menu_name(order.course_name) }}×{{ item.quantity }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}, 
+                            {{ order.order_time.strftime('%H:%M') }})
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
 
         <div class="expired-section">
@@ -68,6 +55,33 @@
         // タイマー切れ時のサウンド再生
         function playTimerSound() {
             document.getElementById('timer-sound').play();
+        }
+
+        // 注文アイテムのトグル機能
+        function toggleOrderStatus(element) {
+            const orderId = element.getAttribute('data-order-id');
+            
+            // 背景色をトグル
+            if (element.classList.contains('order-completed')) {
+                element.classList.remove('order-completed');
+            } else {
+                element.classList.add('order-completed');
+            }
+
+            // サーバーに状態を送信（必要に応じて）
+            const isCompleted = element.classList.contains('order-completed');
+            fetch('/toggle_order_status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    order_id: orderId,
+                    completed: isCompleted
+                })
+            }).catch(error => {
+                console.error('Error updating order status:', error);
+            });
         }
 
         // ステータストグルボタンのクリックイベント

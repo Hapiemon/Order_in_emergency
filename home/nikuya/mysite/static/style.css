@@ -403,6 +403,45 @@ h1 {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+/* 注文リストのスタイル */
+.orders-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.order-item {
+    background-color: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.order-item:hover {
+    background-color: #e9ecef;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.order-item.order-completed {
+    background-color: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+
+.order-content {
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+.order-info {
+    display: block;
+}
+
 .orders-table {
     width: 100%;
     border-collapse: collapse;

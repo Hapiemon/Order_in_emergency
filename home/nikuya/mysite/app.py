@@ -121,17 +121,32 @@ def get_menu_name_by_id(course_name, menu_id):
     コース名とメニューIDからメニュー名を取得
     """
     try:
-        if course_name not in COURSE_MENUS:
+        print(f"Looking for menu: course_name='{course_name}', menu_id='{menu_id}'")
+        
+        # コース名からコースIDを探す
+        course_id = None
+        for c_id, c_data in COURSE_MENUS.items():
+            if c_data.get('course_name') == course_name:
+                course_id = c_id
+                break
+        
+        if not course_id:
+            print(f"Course not found: {course_name}")
             return f"不明なメニュー ({menu_id})"
         
-        course_data = COURSE_MENUS[course_name]
+        print(f"Found course_id: {course_id}")
+        course_data = COURSE_MENUS[course_id]
+        
         if 'dishes_' in course_data:
             # カテゴリー内のアイテムを検索
             for category, items in course_data['dishes_'].items():
                 for item in items:
                     if item.get('id') == menu_id:
-                        return item.get('name', f"不明なメニュー ({menu_id})")
+                        menu_name = item.get('name', f"不明なメニュー ({menu_id})")
+                        print(f"Found menu: {menu_name}")
+                        return menu_name
         
+        print(f"Menu not found in dishes: {menu_id}")
         return f"不明なメニュー ({menu_id})"
     except Exception as e:
         print(f"Error getting menu name: {e}")
@@ -265,6 +280,25 @@ def order_check():
         return jsonify({'success': True})
 
     return jsonify({'success': False, 'error': '無効なインデックスです'})
+
+@app.route('/toggle_order_status', methods=['POST'])
+def toggle_order_status():
+    try:
+        data = request.get_json()
+        order_id = data.get('order_id')
+        completed = data.get('completed', False)
+        
+        # データベースの注文状態を更新
+        order = Order.query.get(order_id)
+        if order:
+            order.status = 'ok' if completed else 'cooking'
+            db.session.commit()
+            return jsonify({'success': True})
+        else:
+            return jsonify({'success': False, 'error': '注文が見つかりません'})
+    except Exception as e:
+        print(f"Error updating order status: {e}")
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/reset_timer/<int:seat>', methods=['POST'])
 def reset_timer(seat):
