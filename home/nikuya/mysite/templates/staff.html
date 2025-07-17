@@ -37,7 +37,7 @@
                         <td>{{ order.course_name }}</td>
                         <td>
                             {% for item in order.menu_items | fromjson %}
-                                {{ item.id }}: {{ item.quantity }}<br>
+                                {{ item.id | get_menu_name(order.course_name) }}: {{ item.quantity }}個<br>
                             {% endfor %}
                         </td>
                         <td>{{ order.order_time.strftime('%Y-%m-%d %H:%M:%S') }}</td>

@@ -34,6 +34,11 @@ def fromjson_filter(s):
     except (json.JSONDecodeError, TypeError):
         return []
 
+@app.template_filter('get_menu_name')
+def get_menu_name_filter(menu_id, course_name):
+    """Jinja2フィルター：メニューIDからメニュー名を取得"""
+    return get_menu_name_by_id(course_name, menu_id)
+
 # 注文モデル
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -109,6 +114,28 @@ def load_course_menus():
 
 
 COURSE_MENUS = load_course_menus()
+
+# メニューIDからメニュー名を取得するヘルパー関数
+def get_menu_name_by_id(course_name, menu_id):
+    """
+    コース名とメニューIDからメニュー名を取得
+    """
+    try:
+        if course_name not in COURSE_MENUS:
+            return f"不明なメニュー ({menu_id})"
+        
+        course_data = COURSE_MENUS[course_name]
+        if 'dishes_' in course_data:
+            # カテゴリー内のアイテムを検索
+            for category, items in course_data['dishes_'].items():
+                for item in items:
+                    if item.get('id') == menu_id:
+                        return item.get('name', f"不明なメニュー ({menu_id})")
+        
+        return f"不明なメニュー ({menu_id})"
+    except Exception as e:
+        print(f"Error getting menu name: {e}")
+        return f"不明なメニュー ({menu_id})"
 
 # 注文データ保存用
 orders = []  # [{seat, course_name, menu_id, quantity, time, expired, checked}]
