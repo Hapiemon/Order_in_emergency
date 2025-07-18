@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注文受付終了 - 席{{ seat }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="notice-container">
+        <div class="notice-content">
+            <h1>📝 注文受付終了のお知らせ</h1>
+            <div class="seat-info">
+                <h2>席 {{ seat }}</h2>
+            </div>
+            <div class="message">
+                <p class="main-message">注文受付時間は終了しています。</p>
+                <p class="sub-message">お食事をお楽しみください。</p>
+                <p class="sub-message">お会計の準備をお願いいたします。</p>
+            </div>
+            <div class="actions">
+                <a href="{{ url_for('index') }}" class="button primary">トップページに戻る</a>
+            </div>
+            <div class="remaining-time" id="remaining-time">
+                <!-- JavaScript で残り時間を表示 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 席の残り時間を表示
+        document.addEventListener('DOMContentLoaded', async () => {
+            const seatNum = {{ seat }};
+            
+            async function updateTimer() {
+                try {
+                    const response = await fetch('/timer_update');
+                    const timerData = await response.json();
+                    
+                    if (timerData && timerData[seatNum]) {
+                        const info = timerData[seatNum];
+                        const remainingElement = document.getElementById('remaining-time');
+                        
+                        if (info.seat_remaining_minutes > 0 || info.seat_remaining_seconds > 0) {
+                            remainingElement.innerHTML = `
+                                <p class="timer-info">席の残り時間: ${info.seat_remaining_minutes}分 ${info.seat_remaining_seconds}秒</p>
+                            `;
+                        } else {
+                            remainingElement.innerHTML = `
+                                <p class="timer-expired">席のお時間が終了しました。お会計をお願いします。</p>
+                            `;
+                            // 会計案内ページにリダイレクト
+                            setTimeout(() => {
+                                window.location.href = '/seat/' + seatNum;
+                            }, 3000);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Timer update error:', error);
+                }
+            }
+            
+            // 初回更新
+            updateTimer();
+            // 5秒ごとに更新
+            setInterval(updateTimer, 5000);
+        });
+    </script>
+</body>
+</html>

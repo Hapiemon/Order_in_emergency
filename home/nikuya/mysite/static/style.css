@@ -1086,3 +1086,137 @@ h1 {
     z-index: 1000;
     min-width: 200px;
 }
+
+/* 案内ページのスタイル */
+.notice-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.notice-content {
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 100%;
+}
+
+.notice-content h1 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.8em;
+}
+
+.seat-info h2 {
+    background: #3498db;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 50px;
+    margin: 20px 0;
+    font-size: 1.5em;
+    display: inline-block;
+}
+
+.message {
+    margin: 30px 0;
+}
+
+.main-message {
+    font-size: 1.3em;
+    color: #e74c3c;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.sub-message {
+    font-size: 1.1em;
+    color: #34495e;
+    margin-bottom: 10px;
+}
+
+.actions {
+    margin: 30px 0;
+}
+
+.button {
+    display: inline-block;
+    padding: 15px 30px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.button.primary {
+    background-color: #3498db;
+    color: white;
+}
+
+.button.primary:hover {
+    background-color: #2980b9;
+}
+
+.staff-note {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #ffd700;
+}
+
+.staff-note small {
+    color: #6c757d;
+}
+
+.timer-info {
+    font-size: 1.2em;
+    color: #f39c12;
+    font-weight: bold;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #fff3cd;
+    border-radius: 8px;
+    border: 1px solid #ffeaa7;
+}
+
+.timer-expired {
+    font-size: 1.2em;
+    color: #e74c3c;
+    font-weight: bold;
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f8d7da;
+    border-radius: 8px;
+    border: 1px solid #f5c6cb;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+    .notice-content {
+        padding: 30px 20px;
+        margin: 10px;
+    }
+    
+    .notice-content h1 {
+        font-size: 1.5em;
+    }
+    
+    .seat-info h2 {
+        font-size: 1.3em;
+        padding: 12px 25px;
+    }
+    
+    .main-message {
+        font-size: 1.1em;
+    }
+    
+    .sub-message {
+        font-size: 1em;
+    }
+}

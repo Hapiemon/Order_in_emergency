@@ -182,6 +182,23 @@ def format_jst_time(dt):
     jst_time = dt.astimezone(JST)
     return jst_time.strftime('%H:%M')
 
+def get_seat_status(seat):
+    """席の状態を取得"""
+    now = datetime.now(JST)
+    
+    if seat not in seat_timers:
+        return 'no_timer'  # タイマーなし
+    
+    order_end = seat_timers[seat]['order_end']
+    seat_end = seat_timers[seat]['seat_end']
+    
+    if now > seat_end:
+        return 'expired'  # 席時間終了
+    elif now > order_end:
+        return 'order_expired'  # 注文時間終了
+    else:
+        return 'active'  # アクティブ
+
 @app.route('/')
 def index():
     return render_template('index.html', seats=SEATS)
@@ -190,12 +207,37 @@ def index():
 def select_course(seat):
     if seat not in SEATS:
         return redirect(url_for('index'))
+    
+    # 席の状態をチェック
+    status = get_seat_status(seat)
+    
+    if status == 'active':
+        # タイマーがアクティブな場合はメニューページにリダイレクト
+        return redirect(url_for('menu', seat=seat))
+    elif status == 'expired':
+        # 席時間が終了している場合は会計案内
+        return render_template('checkout_notice.html', seat=seat)
+    
+    # タイマーなし、または注文時間終了の場合はコース選択を表示
     return render_template('select_course.html', seat=seat, courses=COURSE_MENUS)
 
 @app.route('/menu/<int:seat>')
 def menu(seat):
     if seat not in SEATS:
         return redirect(url_for('index'))
+    
+    # 席の状態をチェック
+    status = get_seat_status(seat)
+    
+    if status == 'no_timer':
+        # タイマーがない場合はコース選択にリダイレクト
+        return redirect(url_for('select_course', seat=seat))
+    elif status == 'expired':
+        # 席時間が終了している場合は会計案内
+        return render_template('checkout_notice.html', seat=seat)
+    elif status == 'order_expired':
+        # 注文時間が終了している場合は注文不可の案内
+        return render_template('order_closed.html', seat=seat)
     
     # コースが選択されていない場合はコース選択画面にリダイレクト
     if seat not in seat_courses:
