@@ -207,24 +207,6 @@
 
         setInterval(reloadStaffData, 5000);
         setInterval(reloadOrders, 3000); // 注文状態を3秒ごとに更新
-        setInterval(async () => {
-            const response = await fetch('/timer_update');
-            const timerData = await response.json();
-
-            const timerGrid = document.getElementById('timer-grid');
-            const activeTimers = Object.entries(timerData);
-            if (activeTimers.length === 0) {
-                timerGrid.innerHTML = '<p>現在カウントダウン中の席はありません</p>';
-            } else {
-                timerGrid.innerHTML = activeTimers.map(([seat, info]) => `
-                    <div class="timer-card">
-                        <h3>席 ${seat}</h3>
-                        <p>注文残り時間: ${info.order_remaining_minutes}分 ${info.order_remaining_seconds}秒</p>
-                        <p>席残り時間: ${info.seat_remaining_minutes}分 ${info.seat_remaining_seconds}秒</p>
-                    </div>
-                `).join('');
-            }
-        }, 5000);
 
         // ページ読み込み時に初期データを取得
         document.addEventListener('DOMContentLoaded', function() {
