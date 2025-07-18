@@ -158,22 +158,15 @@ expired_seats = []  # [{seat, expired_time, is_order_time}]
 seat_timers = {}  # {seat: {order_end: datetime, seat_end: datetime}}
 seat_courses = {}  # {seat: selected_course}
 
-def get_course_times(course_name):
+def get_course_times(course_id):
     """コースの注文時間と席時間を取得"""
-    # コース名からコースIDを検索
-    course_id = None
-    for c_id, c_data in COURSE_MENUS.items():
-        if c_data.get('course_name') == course_name:
-            course_id = c_id
-            break
-    
-    if course_id and course_id in COURSE_MENUS:
+    if course_id in COURSE_MENUS:
         course_data = COURSE_MENUS[course_id]
         order_time = course_data.get('order_time', 80)
         seat_time = course_data.get('seat_time', 20)
         
         # コンちゃんコースの特別ルール：金土日は80分・20分
-        if course_name == "コンちゃんコース":
+        if course_id == "kon":
             now = datetime.now(JST)
             # 金曜日は4、土曜日は5、日曜日は6
             if now.weekday() in [4, 5, 6]:  # 金土日
@@ -231,16 +224,16 @@ def menu(seat):
 @app.route('/select_course', methods=['POST'])
 def set_course():
     seat = int(request.form['seat'])
-    course_name = request.form['course_name']
+    course_id = request.form['course_name']  # 実際にはコースIDが送信される
     
-    if seat not in SEATS or course_name not in COURSE_MENUS:
-        return jsonify({'success': False, 'error': '無効な席番号またはコース名です'})
+    if seat not in SEATS or course_id not in COURSE_MENUS:
+        return jsonify({'success': False, 'error': '無効な席番号またはコースIDです'})
     
-    # コースを選択
-    seat_courses[seat] = course_name
+    # コースを選択（コースIDを保存）
+    seat_courses[seat] = course_id
     
     # コースの時間を取得
-    order_time, seat_time = get_course_times(course_name)
+    order_time, seat_time = get_course_times(course_id)
     
     # タイマーを開始
     now = datetime.now(JST)
@@ -364,6 +357,12 @@ def staff_data():
                 seat_minutes = max(0, int(seat_remaining.total_seconds() / 60))
                 seat_seconds = max(0, int(seat_remaining.total_seconds() % 60))
                 
+                # コースIDからコース名を取得
+                course_id = seat_courses.get(seat, None)
+                course_name = None
+                if course_id and course_id in COURSE_MENUS:
+                    course_name = COURSE_MENUS[course_id].get('course_name', course_id)
+                
                 timer_info[seat] = {
                     'active': True,
                     'order_remaining_minutes': order_minutes,
@@ -372,7 +371,7 @@ def staff_data():
                     'seat_remaining_seconds': seat_seconds,
                     'order_end_time': format_jst_time(seat_timers[seat]['order_end']),
                     'seat_end_time': format_jst_time(seat_timers[seat]['seat_end']),
-                    'course': seat_courses.get(seat, None)
+                    'course': course_name
                 }
     
     def serialize_order(o):
