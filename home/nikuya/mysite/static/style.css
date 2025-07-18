@@ -773,6 +773,36 @@ h1 {
     font-weight: bold;
 }
 
+.end-times {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.end-time-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0;
+    padding: 2px 0;
+}
+
+.end-time-label {
+    font-size: 0.85em;
+    color: #888;
+    flex-shrink: 0;
+}
+
+.end-time-value {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: #34495e;
+    background-color: #f8f9fa;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Courier New', monospace;
+}
+
 .reset-timer-btn {
     background-color: #4CAF50;
     color: white;

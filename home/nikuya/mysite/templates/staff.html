@@ -138,6 +138,16 @@
                                     <span class="timer-label">席残り時間:</span>
                                     <span class="timer-value ${isSeatExpired ? 'expired' : ''}">${info.seat_remaining_minutes}分 ${info.seat_remaining_seconds}秒</span>
                                 </p>
+                                <div class="end-times">
+                                    <p class="end-time-row">
+                                        <span class="end-time-label">注文終了時間:</span>
+                                        <span class="end-time-value">${info.order_end_time || '不明'}</span>
+                                    </p>
+                                    <p class="end-time-row">
+                                        <span class="end-time-label">退店時間:</span>
+                                        <span class="end-time-value">${info.seat_end_time || '不明'}</span>
+                                    </p>
+                                </div>
                                 ${isSeatExpired ? `<button class="reset-timer-btn" data-seat="${seat}">タイマーリセット</button>` : ''}
                             </div>
                         </div>
