@@ -21,7 +21,7 @@
             <h2>新着注文一覧</h2>
             <div class="orders-list" id="orders-list">
                 {% for order in orders %}
-                <div class="order-item" data-order-id="{{ order.id }}" onclick="toggleOrderStatus(this)">
+                <div class="order-item{% if order.status == 'ok' %} order-completed{% endif %}" data-order-id="{{ order.id }}" onclick="toggleOrderStatus(this)">
                     <div class="order-content">
                         <div class="order-time">{{ order.order_time.strftime('%H:%M') }}</div>
                         <div class="order-details">
@@ -133,6 +133,34 @@
             }
         }
 
+        // 注文一覧を更新
+        async function reloadOrders() {
+            try {
+                const response = await fetch('/get_orders');
+                const orders = await response.json();
+                
+                const ordersList = document.getElementById('orders-list');
+                ordersList.innerHTML = orders.map(order => `
+                    <div class="order-item${order.status === 'ok' ? ' order-completed' : ''}" data-order-id="${order.id}" onclick="toggleOrderStatus(this)">
+                        <div class="order-content">
+                            <div class="order-time">${new Date(order.order_time).toLocaleTimeString('ja-JP', {hour: '2-digit', minute: '2-digit'})}</div>
+                            <div class="order-details">
+                                <div class="seat-and-course">
+                                    <span class="seat-number">${order.seat_number}</span>
+                                    <span class="course-name">${order.course_name}</span>
+                                </div>
+                                <div class="order-menus">
+                                    ${order.menu_items.map(item => `<div class="menu-item-line">${item.name || '不明なメニュー'} × ${item.quantity}</div>`).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error reloading orders:', error);
+            }
+        }
+
         // タイマーリセットボタンのクリックイベント
         document.addEventListener('click', async function(e) {
             if (e.target.classList.contains('reset-timer')) {
@@ -155,6 +183,7 @@
         });
 
         setInterval(reloadStaffData, 5000);
+        setInterval(reloadOrders, 3000); // 注文状態を3秒ごとに更新
         setInterval(async () => {
             const response = await fetch('/timer_update');
             const timerData = await response.json();
@@ -173,6 +202,12 @@
                 `).join('');
             }
         }, 5000);
+
+        // ページ読み込み時に初期データを取得
+        document.addEventListener('DOMContentLoaded', function() {
+            reloadOrders();
+            reloadStaffData();
+        });
     </script>
 </body>
 </html>

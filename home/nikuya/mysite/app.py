@@ -490,21 +490,35 @@ def add_order():
 @app.route('/get_orders', methods=['GET'])
 def get_orders():
     try:
-        # SQLAlchemyを使用して注文を取得
-        orders = Order.query.all()
-        orders_list = [
-            {
+        # SQLAlchemyを使用して注文を取得（新しい順）
+        orders = Order.query.order_by(Order.order_time.desc()).all()
+        orders_list = []
+        
+        for order in orders:
+            # メニューアイテムを解析してメニュー名を取得
+            menu_items = json.loads(order.menu_items)
+            menu_items_with_names = []
+            
+            for item in menu_items:
+                menu_name = get_menu_name_by_id(order.course_name, item.get('id'))
+                menu_items_with_names.append({
+                    'id': item.get('id'),
+                    'name': menu_name,
+                    'quantity': item.get('quantity')
+                })
+            
+            orders_list.append({
                 "id": order.id,
                 "seat_number": order.seat_number,
                 "course_name": order.course_name,
-                "menu_items": json.loads(order.menu_items),
+                "menu_items": menu_items_with_names,
                 "order_time": order.order_time.strftime('%Y-%m-%d %H:%M:%S'),
                 "status": order.status
-            }
-            for order in orders
-        ]
+            })
+        
         return jsonify(orders_list)
     except Exception as e:
+        print(f"Error in get_orders: {e}")
         return jsonify({"success": False, "error": str(e)})
 
 if __name__ == '__main__':
