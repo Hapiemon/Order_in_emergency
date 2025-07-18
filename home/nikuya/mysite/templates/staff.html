@@ -128,8 +128,11 @@
                     
                     return `
                         <div class="${cardClass}">
-                            <h3>席 ${seat} - ${info.course || '不明'}</h3>
                             <div class="timer-details">
+                                <div class="seat-and-course">
+                                    <span class="seat-number">${seat}</span>
+                                    <span class="course-name">${info.course || '不明'}</span>
+                                </div>
                                 <p class="timer-row">
                                     <span class="timer-label">注文残り時間:</span>
                                     <span class="timer-value ${isOrderExpired ? 'expired' : ''}">${info.order_remaining_minutes}分 ${info.order_remaining_seconds}秒</span>

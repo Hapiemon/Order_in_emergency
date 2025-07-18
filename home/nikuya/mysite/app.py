@@ -158,14 +158,29 @@ expired_seats = []  # [{seat, expired_time, is_order_time}]
 seat_timers = {}  # {seat: {order_end: datetime, seat_end: datetime}}
 seat_courses = {}  # {seat: selected_course}
 
-def get_course_times(course_id):
+def get_course_times(course_name):
     """コースの注文時間と席時間を取得"""
-    if course_id == "kon":
-        # 現在の日本時間を取得
-        now = datetime.now(JST)
-        # 土曜日は5、日曜日は6
-        if now.weekday() in [5, 6]:  # 週末
-            return 90, 30
+    # コース名からコースIDを検索
+    course_id = None
+    for c_id, c_data in COURSE_MENUS.items():
+        if c_data.get('course_name') == course_name:
+            course_id = c_id
+            break
+    
+    if course_id and course_id in COURSE_MENUS:
+        course_data = COURSE_MENUS[course_id]
+        order_time = course_data.get('order_time', 80)
+        seat_time = course_data.get('seat_time', 20)
+        
+        # コンちゃんコースの特別ルール：金土日は80分・20分
+        if course_name == "コンちゃんコース":
+            now = datetime.now(JST)
+            # 金曜日は4、土曜日は5、日曜日は6
+            if now.weekday() in [4, 5, 6]:  # 金土日
+                return 80, 20
+        
+        return order_time, seat_time
+    
     # デフォルトの時間を返す
     return 80, 20
 
