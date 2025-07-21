@@ -6,6 +6,7 @@ import json
 import pytz
 import threading
 import time
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
@@ -181,6 +182,53 @@ def format_jst_time(dt):
     """日本時間でフォーマット"""
     jst_time = dt.astimezone(JST)
     return jst_time.strftime('%H:%M')
+
+def reset_daily_orders():
+    """深夜0時に注文履歴をリセット"""
+    try:
+        print(f"=== DAILY ORDER RESET START at {datetime.now(JST)} ===")
+        
+        # データベースの注文履歴をクリア
+        deleted_count = Order.query.delete()
+        db.session.commit()
+        
+        print(f"Deleted {deleted_count} orders from database")
+        print("=== DAILY ORDER RESET COMPLETED ===")
+        
+    except Exception as e:
+        print(f"Error during daily reset: {e}")
+        db.session.rollback()
+
+def start_daily_reset_scheduler():
+    """毎日深夜0時に注文をリセットするスケジューラーを開始"""
+    def scheduler_thread():
+        while True:
+            try:
+                now = datetime.now(JST)
+                
+                # 次の深夜0時を計算
+                next_midnight = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+                
+                # 次の実行までの秒数を計算
+                seconds_until_midnight = (next_midnight - now).total_seconds()
+                
+                print(f"Next order reset scheduled at: {next_midnight.strftime('%Y-%m-%d %H:%M:%S')}")
+                print(f"Waiting {seconds_until_midnight} seconds...")
+                
+                # 深夜0時まで待機
+                time.sleep(seconds_until_midnight)
+                
+                # 注文をリセット
+                reset_daily_orders()
+                
+            except Exception as e:
+                print(f"Error in scheduler thread: {e}")
+                time.sleep(3600)  # エラー時は1時間後に再試行
+    
+    # デーモンスレッドとして開始
+    thread = threading.Thread(target=scheduler_thread, daemon=True, name="daily_reset_scheduler")
+    thread.start()
+    print("Daily reset scheduler started")
 
 def get_seat_status(seat):
     """席の状態を取得"""
@@ -577,6 +625,25 @@ def get_orders():
         print(f"Error in get_orders: {e}")
         return jsonify({"success": False, "error": str(e)})
 
+@app.route('/reset_orders', methods=['POST'])
+def reset_orders():
+    """注文履歴を手動でリセット（管理者用）"""
+    try:
+        deleted_count = Order.query.delete()
+        db.session.commit()
+        
+        return jsonify({
+            'success': True, 
+            'message': f'{deleted_count}件の注文履歴を削除しました',
+            'deleted_count': deleted_count
+        })
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
+
 if __name__ == '__main__':
+    # 日次リセットスケジューラーを開始
+    start_daily_reset_scheduler()
+    
     # PythonAnywhereではデバッグモードを無効化
     app.run()

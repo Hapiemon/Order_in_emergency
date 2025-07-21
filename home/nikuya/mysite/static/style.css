@@ -1220,3 +1220,49 @@ h1 {
         font-size: 1em;
     }
 }
+
+/* 注文セクションのヘッダー */
+.orders-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.orders-header h2 {
+    margin: 0;
+}
+
+.reset-orders-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9em;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.reset-orders-btn:hover {
+    background-color: #c0392b;
+}
+
+.reset-orders-btn:active {
+    background-color: #a93226;
+}
+
+/* モバイル対応 */
+@media (max-width: 768px) {
+    .orders-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .reset-orders-btn {
+        width: 100%;
+        padding: 12px;
+    }
+}

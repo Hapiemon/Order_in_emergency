@@ -18,7 +18,10 @@
         </div>
 
         <div class="orders-section">
-            <h2>新着注文一覧</h2>
+            <div class="orders-header">
+                <h2>新着注文一覧</h2>
+                <button class="reset-orders-btn" onclick="resetOrders()">注文履歴をリセット</button>
+            </div>
             <div class="orders-list" id="orders-list">
                 {% for order in orders %}
                 <div class="order-item{% if order.status == 'ok' %} order-completed{% endif %}" data-order-id="{{ order.id }}" onclick="toggleOrderStatus(this)">
@@ -50,6 +53,38 @@
         // タイマー切れ時のサウンド再生
         function playTimerSound() {
             document.getElementById('timer-sound').play();
+        }
+
+        // 注文履歴をリセット
+        async function resetOrders() {
+            if (!confirm('注文履歴を全て削除します。この操作は取り消せません。\n実行しますか？')) {
+                return;
+            }
+            
+            if (!confirm('本当に削除しますか？\n毎日深夜0時に自動でリセットされます。')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/reset_orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`${data.deleted_count}件の注文履歴を削除しました`);
+                    reloadOrders(); // 注文一覧を再読み込み
+                } else {
+                    alert('エラー: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Reset orders error:', error);
+                alert('注文履歴のリセットに失敗しました');
+            }
         }
 
         // 注文アイテムのトグル機能
