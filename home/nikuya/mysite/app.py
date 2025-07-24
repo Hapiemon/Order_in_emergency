@@ -675,11 +675,16 @@ SEATS_JSON = os.path.join(BASE_DIR, 'seats.json')
 
 @app.route('/api/seats', methods=['GET'])
 def api_get_seats():
+    order = request.args.get('order', None)
     if os.path.exists(SEATS_JSON):
         with open(SEATS_JSON, encoding='utf-8') as f:
             seats = json.load(f)
     else:
         seats = []
+    if order == 'asc':
+        seats = sorted(seats)
+    elif order == 'desc':
+        seats = sorted(seats, reverse=True)
     return jsonify(seats)
 
 @app.route('/api/seats', methods=['POST'])
