@@ -9,18 +9,18 @@
         body { font-family: 'Segoe UI', 'Meiryo', sans-serif; background: #f8f8f8; margin: 0; }
         .container { max-width: 480px; margin: 24px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #0001; padding: 20px; }
         h1 { font-size: 1.3em; margin-bottom: 16px; text-align: center; }
-        .seat-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+        .seat-list, .course-list, .dish-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
         .seat-item { background: #eee; border-radius: 6px; padding: 8px 12px; font-size: 1em; display: flex; align-items: center; }
         .seat-item.selected { background: #cce5ff; }
-        .seat-actions { display: flex; gap: 8px; margin-bottom: 16px; justify-content: center; }
-        button, select, input[type=number] { font-size: 1em; border-radius: 6px; border: 1px solid #ccc; padding: 6px 12px; background: #fff; }
+        .seat-actions, .course-actions, .dish-actions { display: flex; gap: 8px; margin-bottom: 16px; justify-content: center; }
+        button, select, input[type=number], input[type=text] { font-size: 1em; border-radius: 6px; border: 1px solid #ccc; padding: 6px 12px; background: #fff; }
         button { background: #007bff; color: #fff; border: none; cursor: pointer; transition: background 0.2s; }
         button:hover { background: #0056b3; }
         .add-form { display: flex; gap: 8px; margin-bottom: 16px; justify-content: center; }
         @media (max-width: 600px) {
             .container { max-width: 98vw; padding: 8vw 2vw; }
-            .seat-list { gap: 4px; }
-            .add-form, .seat-actions { flex-direction: column; gap: 6px; }
+            .seat-list, .course-list, .dish-list { gap: 4px; }
+            .add-form, .seat-actions, .course-actions, .dish-actions { flex-direction: column; gap: 6px; }
         }
     </style>
 </head>
