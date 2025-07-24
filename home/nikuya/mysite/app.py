@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
+
 from datetime import datetime, timedelta
 import os
 import json
@@ -48,6 +48,10 @@ class Order(db.Model):
     menu_items = db.Column(db.Text, nullable=False)  # JSON形式で保存
     order_time = db.Column(db.DateTime, default=datetime.utcnow)
     status = db.Column(db.String(50), default='cooking')  # 'cooking' or 'ok'
+# 管理ページ
+@app.route('/manage')
+def manage():
+    return render_template('manage.html')
 
 # データベース初期化用エンドポイント
 @app.route('/init_db')

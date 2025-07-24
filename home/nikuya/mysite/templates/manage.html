@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>管理ページ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .tab { display: inline-block; margin: 0 10px; cursor: pointer; }
+        .tab.active { font-weight: bold; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .item-list { margin-bottom: 20px; }
+        .item { border: 1px solid #ccc; padding: 8px; margin-bottom: 5px; }
+        .actions button { margin-right: 5px; }
+    </style>
+</head>
+<body>
+    <h1>管理ページ</h1>
+    <div>
+        <span class="tab active" data-tab="seats">座席</span>
+        <span class="tab" data-tab="courses">コース</span>
+        <span class="tab" data-tab="dishes">商品</span>
+    </div>
+    <div id="seats-section" class="section active">
+        <h2>座席管理</h2>
+        <div id="seats-list" class="item-list"></div>
+        <button onclick="showSeatForm()">座席追加</button>
+        <div id="seat-form" style="display:none;"></div>
+    </div>
+    <div id="courses-section" class="section">
+        <h2>コース管理</h2>
+        <div id="courses-list" class="item-list"></div>
+        <button onclick="showCourseForm()">コース追加</button>
+        <div id="course-form" style="display:none;"></div>
+    </div>
+    <div id="dishes-section" class="section">
+        <h2>商品管理</h2>
+        <div id="dishes-list" class="item-list"></div>
+        <button onclick="showDishForm()">商品追加</button>
+        <div id="dish-form" style="display:none;"></div>
+    </div>
+    <script>
+        // タブ切り替え
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById(this.dataset.tab + '-section').classList.add('active');
+            });
+        });
+
+        // ===== 座席管理 =====
+        async function loadSeats() {
+            const res = await fetch('/api/seats');
+            const seats = await res.json();
+            const list = document.getElementById('seats-list');
+            list.innerHTML = '';
+            seats.forEach(seat => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `座席番号: <b>${seat}</b> <span class="actions">
+                    <button onclick="editSeat(${seat})">編集</button>
+                    <button onclick="deleteSeat(${seat})">削除</button>
+                </span>`;
+                list.appendChild(div);
+            });
+        }
+        async function showSeatForm() {
+            const form = document.getElementById('seat-form');
+            form.style.display = 'block';
+            form.innerHTML = `<input type='number' id='new-seat' placeholder='座席番号'>
+                <button onclick='addSeat()'>追加</button>`;
+        }
+        async function addSeat() {
+            const seat = document.getElementById('new-seat').value;
+            await fetch('/api/seats', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({seat: Number(seat)})
+            });
+            document.getElementById('seat-form').style.display = 'none';
+            loadSeats();
+        }
+        async function editSeat(seat) {
+            const form = document.getElementById('seat-form');
+            form.style.display = 'block';
+            form.innerHTML = `<input type='number' id='edit-seat' value='${seat}'>
+                <button onclick='updateSeat(${seat})'>更新</button>`;
+        }
+        async function updateSeat(oldSeat) {
+            const newSeat = document.getElementById('edit-seat').value;
+            await fetch(`/api/seats/${oldSeat}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({seat: Number(newSeat)})
+            });
+            document.getElementById('seat-form').style.display = 'none';
+            loadSeats();
+        }
+        async function deleteSeat(seat) {
+            if (!confirm('削除しますか？')) return;
+            await fetch(`/api/seats/${seat}`, {method: 'DELETE'});
+            loadSeats();
+        }
+
+        // ===== コース管理 =====
+        async function loadCourses() {
+            const res = await fetch('/api/courses');
+            const courses = await res.json();
+            const list = document.getElementById('courses-list');
+            list.innerHTML = '';
+            courses.forEach(course => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `ID: <b>${course.id}</b> 名称: <b>${course.name}</b> 
+                    <span class='actions'>
+                        <button onclick="editCourse('${course.id}', '${course.name}', ${course.hidden})">編集</button>
+                        <button onclick="deleteCourse('${course.id}')">削除</button>
+                        <button onclick="toggleCourseHidden('${course.id}', ${!course.hidden})">${course.hidden ? '表示' : '非表示'}</button>
+                    </span>`;
+                list.appendChild(div);
+            });
+        }
+        async function showCourseForm() {
+            const form = document.getElementById('course-form');
+            form.style.display = 'block';
+            form.innerHTML = `<input type='text' id='new-course-id' placeholder='コースID'>
+                <input type='text' id='new-course-name' placeholder='コース名'>
+                <button onclick='addCourse()'>追加</button>`;
+        }
+        async function addCourse() {
+            const id = document.getElementById('new-course-id').value;
+            const name = document.getElementById('new-course-name').value;
+            await fetch('/api/courses', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({id, name})
+            });
+            document.getElementById('course-form').style.display = 'none';
+            loadCourses();
+        }
+        async function editCourse(id, name, hidden) {
+            const form = document.getElementById('course-form');
+            form.style.display = 'block';
+            form.innerHTML = `<input type='text' id='edit-course-name' value='${name}'>
+                <button onclick="updateCourse('${id}')">更新</button>`;
+        }
+        async function updateCourse(id) {
+            const name = document.getElementById('edit-course-name').value;
+            await fetch(`/api/courses/${id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name})
+            });
+            document.getElementById('course-form').style.display = 'none';
+            loadCourses();
+        }
+        async function deleteCourse(id) {
+            if (!confirm('削除しますか？')) return;
+            await fetch(`/api/courses/${id}`, {method: 'DELETE'});
+            loadCourses();
+        }
+        async function toggleCourseHidden(id, hidden) {
+            await fetch(`/api/courses/${id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({hidden})
+            });
+            loadCourses();
+        }
+
+        // ===== 商品管理 =====
+        let selectedCourseId = '';
+        async function loadDishes(courseId) {
+            selectedCourseId = courseId;
+            const res = await fetch(`/api/dishes/${courseId}`);
+            const dishes = await res.json();
+            const list = document.getElementById('dishes-list');
+            list.innerHTML = `<b>コースID: ${courseId}</b><br>`;
+            dishes.forEach(dish => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `カテゴリ: <b>${dish.category}</b> 名称: <b>${dish.name}</b> 
+                    <span class='actions'>
+                        <button onclick="editDish('${dish.id}', '${dish.name}', '${dish.category}', ${dish.hidden})">編集</button>
+                        <button onclick="deleteDish('${dish.id}')">削除</button>
+                        <button onclick="toggleDishHidden('${dish.id}', ${!dish.hidden})">${dish.hidden ? '表示' : '非表示'}</button>
+                    </span>`;
+                list.appendChild(div);
+            });
+        }
+        async function showDishForm() {
+            const form = document.getElementById('dish-form');
+            form.style.display = 'block';
+            form.innerHTML = `<input type='text' id='dish-category' placeholder='カテゴリ'>
+                <input type='text' id='dish-id' placeholder='商品ID'>
+                <input type='text' id='dish-name' placeholder='商品名'>
+                <button onclick='addDish()'>追加</button>`;
+        }
+        async function addDish() {
+            const category = document.getElementById('dish-category').value;
+            const id = document.getElementById('dish-id').value;
+            const name = document.getElementById('dish-name').value;
+            await fetch(`/api/dishes/${selectedCourseId}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({category, id, name})
+            });
+            document.getElementById('dish-form').style.display = 'none';
+            loadDishes(selectedCourseId);
+        }
+        async function editDish(id, name, category, hidden) {
+            const form = document.getElementById('dish-form');
+            form.style.display = 'block';
+            form.innerHTML = `<input type='text' id='edit-dish-name' value='${name}'>
+                <button onclick="updateDish('${id}')">更新</button>`;
+        }
+        async function updateDish(id) {
+            const name = document.getElementById('edit-dish-name').value;
+            await fetch(`/api/dishes/${selectedCourseId}/${id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name})
+            });
+            document.getElementById('dish-form').style.display = 'none';
+            loadDishes(selectedCourseId);
+        }
+        async function deleteDish(id) {
+            if (!confirm('削除しますか？')) return;
+            await fetch(`/api/dishes/${selectedCourseId}/${id}`, {method: 'DELETE'});
+            loadDishes(selectedCourseId);
+        }
+        async function toggleDishHidden(id, hidden) {
+            await fetch(`/api/dishes/${selectedCourseId}/${id}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({hidden})
+            });
+            loadDishes(selectedCourseId);
+        }
+
+        // ===== 初期表示 =====
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadSeats();
+            await loadCourses();
+            // 商品管理はコース選択UIを追加
+            const dishList = document.getElementById('dishes-list');
+            const res = await fetch('/api/courses');
+            const courses = await res.json();
+            let selectHtml = '<select id="course-select">';
+            courses.forEach(c => {
+                selectHtml += `<option value='${c.id}'>${c.name}</option>`;
+            });
+            selectHtml += '</select> <button onclick="selectCourseForDishes()">表示</button>';
+            dishList.innerHTML = selectHtml;
+        });
+        window.selectCourseForDishes = function() {
+            const courseId = document.getElementById('course-select').value;
+            loadDishes(courseId);
+        }
+    </script>
+</body>
+</html>
