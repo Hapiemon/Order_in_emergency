@@ -2,20 +2,142 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>管理ページ</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>座席管理</title>
+    <link rel="stylesheet" href="/static/style.css">
     <style>
-        .tab { display: inline-block; margin: 0 10px; cursor: pointer; }
-        .tab.active { font-weight: bold; }
-        .section { display: none; }
-        .section.active { display: block; }
-        .item-list { margin-bottom: 20px; }
-        .item { border: 1px solid #ccc; padding: 8px; margin-bottom: 5px; }
-        .actions button { margin-right: 5px; }
+        body { font-family: 'Segoe UI', 'Meiryo', sans-serif; background: #f8f8f8; margin: 0; }
+        .container { max-width: 480px; margin: 24px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #0001; padding: 20px; }
+        h1 { font-size: 1.3em; margin-bottom: 16px; text-align: center; }
+        .seat-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+        .seat-item { background: #eee; border-radius: 6px; padding: 8px 12px; font-size: 1em; display: flex; align-items: center; }
+        .seat-item.selected { background: #cce5ff; }
+        .seat-actions { display: flex; gap: 8px; margin-bottom: 16px; justify-content: center; }
+        button, select, input[type=number] { font-size: 1em; border-radius: 6px; border: 1px solid #ccc; padding: 6px 12px; background: #fff; }
+        button { background: #007bff; color: #fff; border: none; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #0056b3; }
+        .add-form { display: flex; gap: 8px; margin-bottom: 16px; justify-content: center; }
+        @media (max-width: 600px) {
+            .container { max-width: 98vw; padding: 8vw 2vw; }
+            .seat-list { gap: 4px; }
+            .add-form, .seat-actions { flex-direction: column; gap: 6px; }
+        }
     </style>
 </head>
 <body>
-    <h1>管理ページ</h1>
+<div class="container">
+    <h1>座席管理</h1>
+    <div class="seat-actions">
+        <select id="sortOrder">
+            <option value="asc">小さい順</option>
+            <option value="desc">大きい順</option>
+        </select>
+        <button onclick="reloadSeats()">並び替え</button>
+    </div>
+</div>
+    <div class="seat-list" id="seatList"></div>
+    <form class="add-form" onsubmit="addSeat(event)">
+        <input type="number" id="newSeat" placeholder="座席番号" min="1" required>
+        <button type="submit">追加</button>
+    </form>
+    <div id="actionBtns" style="position:fixed;right:16px;bottom:16px;z-index:10;display:none;flex-direction:column;gap:8px;">
+        <button id="editBtn" style="background:#28a745;">編集</button>
+        <button id="deleteBtn" style="background:#dc3545;">削除</button>
+    </div>
+</div>
+</div>
+<script>
+let selectedSeat = null;
+function reloadSeats() {
+    const order = document.getElementById('sortOrder').value;
+    fetch(`/api/seats?order=${order}`)
+        .then(res => res.json())
+        .then(seats => {
+            const seatList = document.getElementById('seatList');
+            seatList.innerHTML = '';
+            seats.forEach(seat => {
+                const div = document.createElement('div');
+                div.className = 'seat-item';
+                div.textContent = seat;
+                div.onclick = () => selectSeat(div, seat);
+                if (selectedSeat === seat) div.classList.add('selected');
+                seatList.appendChild(div);
+            });
+            updateActionBtns();
+        });
+}
+function selectSeat(div, seat) {
+    selectedSeat = seat;
+    document.querySelectorAll('.seat-item').forEach(d => d.classList.remove('selected'));
+    div.classList.add('selected');
+    updateActionBtns();
+}
+function updateActionBtns() {
+    const btns = document.getElementById('actionBtns');
+    if (selectedSeat !== null) {
+        btns.style.display = 'flex';
+    } else {
+        btns.style.display = 'none';
+    }
+}
+function addSeat(e) {
+    e.preventDefault();
+    const seat = document.getElementById('newSeat').value;
+    fetch('/api/seats', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ seat: Number(seat) })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('newSeat').value = '';
+            selectedSeat = null;
+            reloadSeats();
+        } else {
+            alert(data.error || '追加失敗');
+        }
+    });
+}
+document.getElementById('editBtn').onclick = function() {
+    if (selectedSeat === null) return;
+    const newSeat = prompt(`座席 ${selectedSeat} を編集します。新しい番号を入力してください:`, selectedSeat);
+    if (newSeat && !isNaN(newSeat)) {
+        fetch(`/api/seats/${selectedSeat}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ seat: Number(newSeat) })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                selectedSeat = null;
+                reloadSeats();
+            } else {
+                alert(data.error || '編集失敗');
+            }
+        });
+    }
+};
+document.getElementById('deleteBtn').onclick = function() {
+    if (selectedSeat === null) return;
+    if (!confirm(`座席 ${selectedSeat} を削除しますか？`)) return;
+    fetch(`/api/seats/${selectedSeat}`, { method: 'DELETE' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                selectedSeat = null;
+                reloadSeats();
+            } else {
+                alert(data.error || '削除失敗');
+            }
+        });
+};
+document.getElementById('sortOrder').addEventListener('change', reloadSeats);
+window.onload = reloadSeats;
+</script>
+</body>
+</html>
     <div>
         <span class="tab active" data-tab="seats">座席</span>
         <span class="tab" data-tab="courses">コース</span>
