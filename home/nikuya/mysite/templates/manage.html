@@ -292,15 +292,24 @@ window.addEventListener('DOMContentLoaded', reloadCourses);
   </div>
 </section>
 // 管理タブ切り替え
+<script>
+// 管理タブ切り替え
 document.querySelectorAll('.manage-tab').forEach(btn => {
   btn.onclick = function() {
     document.querySelectorAll('.manage-tab').forEach(b => b.classList.remove('active'));
     this.classList.add('active');
-    document.getElementById('seatSection').style.display = 'none';
-    document.getElementById('courseSection').style.display = 'none';
-    document.getElementById('dishSection').style.display = 'none';
+    ['seatSection','courseSection','dishSection'].forEach(id => {
+      document.getElementById(id).style.display = 'none';
+    });
     document.getElementById(this.dataset.target).style.display = '';
   };
+});
+
+// 商品管理UIの初期化
+window.addEventListener('DOMContentLoaded', () => {
+  reloadSeats();
+  reloadCourses();
+  reloadDishCourses();
 });
 
 <script>
