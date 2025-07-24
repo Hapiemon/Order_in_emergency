@@ -645,6 +645,214 @@ def reset_orders():
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)})
 
+
+# ===== 管理API: 座席 =====
+SEATS_JSON = os.path.join(BASE_DIR, 'seats.json')
+
+@app.route('/api/seats', methods=['GET'])
+def api_get_seats():
+    if os.path.exists(SEATS_JSON):
+        with open(SEATS_JSON, encoding='utf-8') as f:
+            seats = json.load(f)
+    else:
+        seats = []
+    return jsonify(seats)
+
+@app.route('/api/seats', methods=['POST'])
+def api_add_seat():
+    data = request.get_json()
+    seat = data.get('seat')
+    if not seat:
+        return jsonify({'success': False, 'error': 'seat番号必須'})
+    if os.path.exists(SEATS_JSON):
+        with open(SEATS_JSON, encoding='utf-8') as f:
+            seats = json.load(f)
+    else:
+        seats = []
+    if seat in seats:
+        return jsonify({'success': False, 'error': '既に存在します'})
+    seats.append(seat)
+    with open(SEATS_JSON, 'w', encoding='utf-8') as f:
+        json.dump(seats, f, ensure_ascii=False, indent=2)
+    return jsonify({'success': True})
+
+@app.route('/api/seats/<int:seat>', methods=['PUT'])
+def api_edit_seat(seat):
+    data = request.get_json()
+    new_seat = data.get('seat')
+    if os.path.exists(SEATS_JSON):
+        with open(SEATS_JSON, encoding='utf-8') as f:
+            seats = json.load(f)
+    else:
+        seats = []
+    if seat not in seats:
+        return jsonify({'success': False, 'error': '存在しません'})
+    idx = seats.index(seat)
+    seats[idx] = new_seat
+    with open(SEATS_JSON, 'w', encoding='utf-8') as f:
+        json.dump(seats, f, ensure_ascii=False, indent=2)
+    return jsonify({'success': True})
+
+@app.route('/api/seats/<int:seat>', methods=['DELETE'])
+def api_delete_seat(seat):
+    if os.path.exists(SEATS_JSON):
+        with open(SEATS_JSON, encoding='utf-8') as f:
+            seats = json.load(f)
+    else:
+        seats = []
+    if seat not in seats:
+        return jsonify({'success': False, 'error': '存在しません'})
+    seats.remove(seat)
+    with open(SEATS_JSON, 'w', encoding='utf-8') as f:
+        json.dump(seats, f, ensure_ascii=False, indent=2)
+    return jsonify({'success': True})
+
+# ===== 管理API: コース =====
+MENUS_DIR = os.path.join(BASE_DIR, 'menus')
+
+@app.route('/api/courses', methods=['GET'])
+def api_get_courses():
+    courses = []
+    for filename in os.listdir(MENUS_DIR):
+        if filename.endswith('.json'):
+            with open(os.path.join(MENUS_DIR, filename), encoding='utf-8') as f:
+                data = json.load(f)
+                course_id = os.path.splitext(filename)[0]
+                courses.append({
+                    'id': course_id,
+                    'name': data.get('course_name', course_id),
+                    'hidden': data.get('hidden', False)
+                })
+    return jsonify(courses)
+
+@app.route('/api/courses', methods=['POST'])
+def api_add_course():
+    data = request.get_json()
+    name = data.get('name')
+    course_id = data.get('id')
+    if not name or not course_id:
+        return jsonify({'success': False, 'error': 'nameとid必須'})
+    path = os.path.join(MENUS_DIR, f'{course_id}.json')
+    if os.path.exists(path):
+        return jsonify({'success': False, 'error': '既に存在します'})
+    course_data = {
+        'course_name': name,
+        'dishes_': {},
+        'hidden': False
+    }
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(course_data, f, ensure_ascii=False, indent=2)
+    return jsonify({'success': True})
+
+@app.route('/api/courses/<course_id>', methods=['PUT'])
+def api_edit_course(course_id):
+    data = request.get_json()
+    path = os.path.join(MENUS_DIR, f'{course_id}.json')
+    if not os.path.exists(path):
+        return jsonify({'success': False, 'error': '存在しません'})
+    with open(path, encoding='utf-8') as f:
+        course_data = json.load(f)
+    if 'name' in data:
+        course_data['course_name'] = data['name']
+    if 'hidden' in data:
+        course_data['hidden'] = data['hidden']
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(course_data, f, ensure_ascii=False, indent=2)
+    return jsonify({'success': True})
+
+@app.route('/api/courses/<course_id>', methods=['DELETE'])
+def api_delete_course(course_id):
+    path = os.path.join(MENUS_DIR, f'{course_id}.json')
+    if not os.path.exists(path):
+        return jsonify({'success': False, 'error': '存在しません'})
+    os.remove(path)
+    return jsonify({'success': True})
+
+# ===== 管理API: 商品 =====
+@app.route('/api/dishes/<course_id>', methods=['GET'])
+def api_get_dishes(course_id):
+    path = os.path.join(MENUS_DIR, f'{course_id}.json')
+    if not os.path.exists(path):
+        return jsonify([])
+    with open(path, encoding='utf-8') as f:
+        course_data = json.load(f)
+    dishes = []
+    for category, items in course_data.get('dishes_', {}).items():
+        for item in items:
+            dishes.append({
+                'category': category,
+                'id': item.get('id'),
+                'name': item.get('name'),
+                'hidden': item.get('hidden', False)
+            })
+    return jsonify(dishes)
+
+@app.route('/api/dishes/<course_id>', methods=['POST'])
+def api_add_dish(course_id):
+    data = request.get_json()
+    category = data.get('category')
+    dish_id = data.get('id')
+    name = data.get('name')
+    if not category or not dish_id or not name:
+        return jsonify({'success': False, 'error': 'category, id, name必須'})
+    path = os.path.join(MENUS_DIR, f'{course_id}.json')
+    if not os.path.exists(path):
+        return jsonify({'success': False, 'error': 'コースが存在しません'})
+    with open(path, encoding='utf-8') as f:
+        course_data = json.load(f)
+    if category not in course_data['dishes_']:
+        course_data['dishes_'][category] = []
+    for item in course_data['dishes_'][category]:
+        if item.get('id') == dish_id:
+            return jsonify({'success': False, 'error': '既に存在します'})
+    course_data['dishes_'][category].append({'id': dish_id, 'name': name, 'hidden': False})
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(course_data, f, ensure_ascii=False, indent=2)
+    return jsonify({'success': True})
+
+@app.route('/api/dishes/<course_id>/<dish_id>', methods=['PUT'])
+def api_edit_dish(course_id, dish_id):
+    data = request.get_json()
+    path = os.path.join(MENUS_DIR, f'{course_id}.json')
+    if not os.path.exists(path):
+        return jsonify({'success': False, 'error': 'コースが存在しません'})
+    with open(path, encoding='utf-8') as f:
+        course_data = json.load(f)
+    found = False
+    for category, items in course_data.get('dishes_', {}).items():
+        for item in items:
+            if item.get('id') == dish_id:
+                if 'name' in data:
+                    item['name'] = data['name']
+                if 'hidden' in data:
+                    item['hidden'] = data['hidden']
+                found = True
+    if not found:
+        return jsonify({'success': False, 'error': '商品が存在しません'})
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(course_data, f, ensure_ascii=False, indent=2)
+    return jsonify({'success': True})
+
+@app.route('/api/dishes/<course_id>/<dish_id>', methods=['DELETE'])
+def api_delete_dish(course_id, dish_id):
+    path = os.path.join(MENUS_DIR, f'{course_id}.json')
+    if not os.path.exists(path):
+        return jsonify({'success': False, 'error': 'コースが存在しません'})
+    with open(path, encoding='utf-8') as f:
+        course_data = json.load(f)
+    removed = False
+    for category, items in course_data.get('dishes_', {}).items():
+        for i, item in enumerate(items):
+            if item.get('id') == dish_id:
+                del items[i]
+                removed = True
+                break
+    if not removed:
+        return jsonify({'success': False, 'error': '商品が存在しません'})
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(course_data, f, ensure_ascii=False, indent=2)
+    return jsonify({'success': True})
+
 if __name__ == '__main__':
     # 日次リセットスケジューラーを開始
     start_daily_reset_scheduler()
