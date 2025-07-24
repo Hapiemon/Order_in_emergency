@@ -25,7 +25,15 @@
     </style>
 </head>
 <body>
-<div class="container">
+<div class="container" style="max-width:480px;margin:24px auto 0 auto;">
+  <div id="manage-tabs" style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;">
+    <button class="manage-tab active" data-target="seatSection">座席管理</button>
+    <button class="manage-tab" data-target="courseSection">コース管理</button>
+    <button class="manage-tab" data-target="dishSection">商品管理</button>
+  </div>
+</div>
+<section id="seatSection">
+  <div class="container">
     <h1>座席管理</h1>
     <div class="seat-actions">
         <select id="sortOrder">
@@ -33,7 +41,6 @@
             <option value="desc">大きい順</option>
         </select>
     </div>
-</div>
     <div class="seat-list" id="seatList"></div>
     <form class="add-form" onsubmit="addSeat(event)">
         <input type="number" id="newSeat" placeholder="座席番号" min="1" required>
@@ -43,8 +50,8 @@
         <button id="editBtn" style="background:#28a745;">編集</button>
         <button id="deleteBtn" style="background:#dc3545;">削除</button>
     </div>
-</div>
-</div>
+  </div>
+</section>
 <script>
 let selectedSeat = null;
 function reloadSeats() {
@@ -137,7 +144,8 @@ window.onload = reloadSeats;
 </script>
 
 <!-- コース管理UI -->
-<div class="container" style="margin-top:32px;">
+<section id="courseSection" style="display:none;">
+  <div class="container" style="margin-top:32px;">
     <h1>コース管理</h1>
     <div class="course-actions" style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;">
         <select id="courseSort">
@@ -156,7 +164,8 @@ window.onload = reloadSeats;
         <button id="deleteCourseBtn" style="background:#dc3545;">削除</button>
         <button id="toggleCourseBtn" style="background:#ffc107;color:#333;">表示/非表示</button>
     </div>
-</div>
+  </div>
+</section>
 
 <script>
 let selectedCourse = null;
@@ -256,7 +265,8 @@ window.addEventListener('DOMContentLoaded', reloadCourses);
 </script>
 
 <!-- 商品管理UI -->
-<div class="container" style="margin-top:32px;">
+<section id="dishSection" style="display:none;">
+  <div class="container" style="margin-top:32px;">
     <h1>商品管理</h1>
     <div class="dish-actions" style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;">
         <select id="dishCourse">
@@ -279,7 +289,19 @@ window.addEventListener('DOMContentLoaded', reloadCourses);
         <button id="deleteDishBtn" style="background:#dc3545;">削除</button>
         <button id="toggleDishBtn" style="background:#ffc107;color:#333;">表示/非表示</button>
     </div>
-</div>
+  </div>
+</section>
+// 管理タブ切り替え
+document.querySelectorAll('.manage-tab').forEach(btn => {
+  btn.onclick = function() {
+    document.querySelectorAll('.manage-tab').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    document.getElementById('seatSection').style.display = 'none';
+    document.getElementById('courseSection').style.display = 'none';
+    document.getElementById('dishSection').style.display = 'none';
+    document.getElementById(this.dataset.target).style.display = '';
+  };
+});
 
 <script>
 let selectedDish = null;
