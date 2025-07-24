@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for
-
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import os
 import json
@@ -253,34 +253,52 @@ def get_seat_status(seat):
 
 @app.route('/')
 def index():
-    return render_template('index.html', seats=SEATS)
+    seats_path = os.path.join(BASE_DIR, 'seats.json')
+    if os.path.exists(seats_path):
+        with open(seats_path, encoding='utf-8') as f:
+            seats = json.load(f)
+    else:
+        seats = SEATS
+    return render_template('index.html', seats=seats)
 
 @app.route('/seat/<int:seat>')
 def select_course(seat):
-    if seat not in SEATS:
+    seats_path = os.path.join(BASE_DIR, 'seats.json')
+    if os.path.exists(seats_path):
+        with open(seats_path, encoding='utf-8') as f:
+            seats = json.load(f)
+    else:
+        seats = SEATS
+    if seat not in seats:
         return redirect(url_for('index'))
-    
+
     # 席の状態をチェック
     status = get_seat_status(seat)
-    
+
     if status == 'active':
         # タイマーがアクティブな場合はメニューページにリダイレクト
         return redirect(url_for('menu', seat=seat))
     elif status == 'expired':
         # 席時間が終了している場合は会計案内
         return render_template('checkout_notice.html', seat=seat)
-    
+
     # タイマーなし、または注文時間終了の場合はコース選択を表示
     return render_template('select_course.html', seat=seat, courses=COURSE_MENUS)
 
 @app.route('/menu/<int:seat>')
 def menu(seat):
-    if seat not in SEATS:
+    seats_path = os.path.join(BASE_DIR, 'seats.json')
+    if os.path.exists(seats_path):
+        with open(seats_path, encoding='utf-8') as f:
+            seats = json.load(f)
+    else:
+        seats = SEATS
+    if seat not in seats:
         return redirect(url_for('index'))
-    
+
     # 席の状態をチェック
     status = get_seat_status(seat)
-    
+
     if status == 'no_timer':
         # タイマーがない場合はコース選択にリダイレクト
         return redirect(url_for('select_course', seat=seat))
@@ -290,16 +308,16 @@ def menu(seat):
     elif status == 'order_expired':
         # 注文時間が終了している場合は注文不可の案内
         return render_template('order_closed.html', seat=seat)
-    
+
     # コースが選択されていない場合はコース選択画面にリダイレクト
     if seat not in seat_courses:
         return redirect(url_for('select_course', seat=seat))
-    
+
     selected_course = COURSE_MENUS[seat_courses[seat]]
-    
+
     # 現在の時刻（JST）
     now = datetime.now(JST)
-    
+
     # タイマー情報
     timer_info = None
     if seat in seat_timers:
@@ -309,7 +327,7 @@ def menu(seat):
             'is_order_expired': now > seat_timers[seat]['order_end'],
             'is_seat_expired': now > seat_timers[seat]['seat_end']
         }
-    
+
     return render_template('menu.html', 
                          seat=seat, 
                          course=selected_course,
@@ -404,31 +422,37 @@ def toggle_order_status():
 
 @app.route('/reset_timer/<int:seat>', methods=['POST'])
 def reset_timer(seat):
-    if seat not in SEATS:
+    seats_path = os.path.join(BASE_DIR, 'seats.json')
+    if os.path.exists(seats_path):
+        with open(seats_path, encoding='utf-8') as f:
+            seats = json.load(f)
+    else:
+        seats = SEATS
+    if seat not in seats:
         return jsonify({'success': False, 'error': '無効な席番号です'})
-    
+
     # タイマーをリセット（削除）
     if seat in seat_timers:
         del seat_timers[seat]
-    
+
     # コース選択をリセット
     if seat in seat_courses:
         del seat_courses[seat]
-    
+
     # 既存のタイマースレッドを停止（もし存在すれば）
     for thread in threading.enumerate():
         if isinstance(thread, threading.Thread) and thread.name == f"timer_{seat}":
             thread.join(timeout=0.1)
-    
+
     # expired_seatsから該当の席を削除
     global expired_seats
     expired_seats = [s for s in expired_seats if s['seat'] != seat]
-    
+
     # 注文リストの該当席のexpiredフラグをリセット
     for o in orders:
         if o['seat'] == seat:
             o['expired'] = False
-    
+
     return jsonify({'success': True})
 
 @app.route('/staff_data')
