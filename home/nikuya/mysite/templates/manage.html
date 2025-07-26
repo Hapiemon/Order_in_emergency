@@ -144,7 +144,7 @@ window.onload = reloadSeats;
 </script>
 
 <!-- コース管理UI -->
-<section id="courseSection" style="display:none;">
+<section id="courseSection" hidden>
   <div class="container" style="margin-top:32px;">
     <h1>コース管理</h1>
     <div class="course-actions" style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;">
@@ -265,7 +265,7 @@ window.addEventListener('DOMContentLoaded', reloadCourses);
 </script>
 
 <!-- 商品管理UI -->
-<section id="dishSection" style="display:none;">
+<section id="dishSection" hidden>
   <div class="container" style="margin-top:32px;">
     <h1>商品管理</h1>
     <div class="dish-actions" style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;">
@@ -291,141 +291,143 @@ window.addEventListener('DOMContentLoaded', reloadCourses);
     </div>
   </div>
 </section>
-// 管理タブ切り替え
-<script>
-// 管理タブ切り替え
-document.querySelectorAll('.manage-tab').forEach(btn => {
-  btn.onclick = function() {
-    document.querySelectorAll('.manage-tab').forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
-    ['seatSection','courseSection','dishSection'].forEach(id => {
-      document.getElementById(id).style.display = 'none';
-    });
-    document.getElementById(this.dataset.target).style.display = '';
-  };
-});
 
-// 商品管理UIの初期化
+<script>
+// すべてのJSを1つの<script>タグにまとめる
 window.addEventListener('DOMContentLoaded', () => {
+  // タブ切り替え
+  document.querySelectorAll('.manage-tab').forEach(btn => {
+    btn.onclick = function() {
+      document.querySelectorAll('.manage-tab').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById('seatSection').hidden = true;
+      document.getElementById('courseSection').hidden = true;
+      document.getElementById('dishSection').hidden = true;
+      document.getElementById(this.dataset.target).hidden = false;
+    };
+  });
+  // 初期表示: 座席管理のみ表示
+  document.getElementById('seatSection').hidden = false;
+  document.getElementById('courseSection').hidden = true;
+  document.getElementById('dishSection').hidden = true;
   reloadSeats();
   reloadCourses();
   reloadDishCourses();
-});
 
-<script>
-let selectedDish = null;
-let currentCourse = '';
-function reloadDishCourses(){
-    fetch('/api/courses')
-        .then(res=>res.json())
-        .then(courses=>{
-            const sel = document.getElementById('dishCourse');
-            sel.innerHTML = '<option value="">コース選択</option>';
-            courses.forEach(c=>{
-                sel.innerHTML += `<option value="${c.id}">${c.name} (${c.id})</option>`;
-            });
-        });
-}
-function reloadDishes(){
-    const courseId = document.getElementById('dishCourse').value;
-    currentCourse = courseId;
-    if(!courseId){document.getElementById('dishList').innerHTML='';return;}
-    fetch(`/api/dishes/${courseId}`)
-        .then(res=>res.json())
-        .then(dishes=>{
-            const order = document.getElementById('dishSort').value;
-            if(order==='asc') dishes.sort((a,b)=>a.id.localeCompare(b.id));
-            else dishes.sort((a,b)=>b.id.localeCompare(a.id));
-            const dishList = document.getElementById('dishList');
-            dishList.innerHTML = '';
-            dishes.forEach(dish=>{
-                const div = document.createElement('div');
-                div.className = 'seat-item';
-                div.textContent = `${dish.name} (${dish.id}) [${dish.category}]` + (dish.hidden ? ' [非表示]' : '');
-                div.onclick = () => selectDish(div, dish);
-                if(selectedDish && selectedDish.id===dish.id) div.classList.add('selected');
-                dishList.appendChild(div);
-            });
-            updateDishBtns();
-        });
-}
-function selectDish(div, dish){
-    selectedDish = dish;
-    document.querySelectorAll('.dish-list .seat-item').forEach(d=>d.classList.remove('selected'));
-    div.classList.add('selected');
-    updateDishBtns();
-}
-function updateDishBtns(){
-    const btns = document.getElementById('dishActionBtns');
-    if(selectedDish) btns.style.display = 'flex';
-    else btns.style.display = 'none';
-}
-function addDish(e){
-    e.preventDefault();
-    if(!currentCourse){alert('コースを選択してください');return;}
-    const category = document.getElementById('newDishCategory').value.trim();
-    const id = document.getElementById('newDishId').value.trim();
-    const name = document.getElementById('newDishName').value.trim();
-    fetch(`/api/dishes/${currentCourse}`,{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({category,id,name})
-    })
-    .then(res=>res.json())
-    .then(data=>{
-        if(data.success){
-            document.getElementById('newDishCategory').value='';
-            document.getElementById('newDishId').value='';
-            document.getElementById('newDishName').value='';
-            selectedDish=null;
-            reloadDishes();
-        }else{
-            alert(data.error||'追加失敗');
-        }
-    });
-}
-document.getElementById('editDishBtn').onclick = function(){
-    if(!selectedDish||!currentCourse) return;
-    const newName = prompt('商品名を編集:',selectedDish.name);
-    if(newName){
-        fetch(`/api/dishes/${currentCourse}/${selectedDish.id}`,{
-            method:'PUT',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({name:newName})
-        })
-        .then(res=>res.json())
-        .then(data=>{
-            if(data.success){selectedDish=null;reloadDishes();}
-            else alert(data.error||'編集失敗');
-        });
-    }
-};
-document.getElementById('deleteDishBtn').onclick = function(){
-    if(!selectedDish||!currentCourse) return;
-    if(!confirm(`商品 ${selectedDish.name} (${selectedDish.id}) を削除しますか？`)) return;
-    fetch(`/api/dishes/${currentCourse}/${selectedDish.id}`,{method:'DELETE'})
-        .then(res=>res.json())
-        .then(data=>{
-            if(data.success){selectedDish=null;reloadDishes();}
-            else alert(data.error||'削除失敗');
-        });
-};
-document.getElementById('toggleDishBtn').onclick = function(){
-    if(!selectedDish||!currentCourse) return;
-    fetch(`/api/dishes/${currentCourse}/${selectedDish.id}`,{
-        method:'PUT',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({hidden:!selectedDish.hidden})
-    })
-    .then(res=>res.json())
-    .then(data=>{
-        if(data.success){selectedDish=null;reloadDishes();}
-        else alert(data.error||'切替失敗');
-    });
-};
-document.getElementById('dishCourse').addEventListener('change',reloadDishes);
-document.getElementById('dishSort').addEventListener('change',reloadDishes);
-window.addEventListener('DOMContentLoaded',()=>{reloadDishCourses();});
+  // 商品管理JS
+  let selectedDish = null;
+  let currentCourse = '';
+  function reloadDishCourses(){
+      fetch('/api/courses')
+          .then(res=>res.json())
+          .then(courses=>{
+              const sel = document.getElementById('dishCourse');
+              sel.innerHTML = '<option value="">コース選択</option>';
+              courses.forEach(c=>{
+                  sel.innerHTML += `<option value="${c.id}">${c.name} (${c.id})</option>`;
+              });
+          });
+  }
+  function reloadDishes(){
+      const courseId = document.getElementById('dishCourse').value;
+      currentCourse = courseId;
+      if(!courseId){document.getElementById('dishList').innerHTML='';return;}
+      fetch(`/api/dishes/${courseId}`)
+          .then(res=>res.json())
+          .then(dishes=>{
+              const order = document.getElementById('dishSort').value;
+              if(order==='asc') dishes.sort((a,b)=>a.id.localeCompare(b.id));
+              else dishes.sort((a,b)=>b.id.localeCompare(a.id));
+              const dishList = document.getElementById('dishList');
+              dishList.innerHTML = '';
+              dishes.forEach(dish=>{
+                  const div = document.createElement('div');
+                  div.className = 'seat-item';
+                  div.textContent = `${dish.name} (${dish.id}) [${dish.category}]` + (dish.hidden ? ' [非表示]' : '');
+                  div.onclick = () => selectDish(div, dish);
+                  if(selectedDish && selectedDish.id===dish.id) div.classList.add('selected');
+                  dishList.appendChild(div);
+              });
+              updateDishBtns();
+          });
+  }
+  function selectDish(div, dish){
+      selectedDish = dish;
+      document.querySelectorAll('.dish-list .seat-item').forEach(d=>d.classList.remove('selected'));
+      div.classList.add('selected');
+      updateDishBtns();
+  }
+  function updateDishBtns(){
+      const btns = document.getElementById('dishActionBtns');
+      if(selectedDish) btns.style.display = 'flex';
+      else btns.style.display = 'none';
+  }
+  function addDish(e){
+      e.preventDefault();
+      if(!currentCourse){alert('コースを選択してください');return;}
+      const category = document.getElementById('newDishCategory').value.trim();
+      const id = document.getElementById('newDishId').value.trim();
+      const name = document.getElementById('newDishName').value.trim();
+      fetch(`/api/dishes/${currentCourse}`,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({category,id,name})
+      })
+      .then(res=>res.json())
+      .then(data=>{
+          if(data.success){
+              document.getElementById('newDishCategory').value='';
+              document.getElementById('newDishId').value='';
+              document.getElementById('newDishName').value='';
+              selectedDish=null;
+              reloadDishes();
+          }else{
+              alert(data.error||'追加失敗');
+          }
+      });
+  }
+  document.getElementById('editDishBtn').onclick = function(){
+      if(!selectedDish||!currentCourse) return;
+      const newName = prompt('商品名を編集:',selectedDish.name);
+      if(newName){
+          fetch(`/api/dishes/${currentCourse}/${selectedDish.id}`,{
+              method:'PUT',
+              headers:{'Content-Type':'application/json'},
+              body:JSON.stringify({name:newName})
+          })
+          .then(res=>res.json())
+          .then(data=>{
+              if(data.success){selectedDish=null;reloadDishes();}
+              else alert(data.error||'編集失敗');
+          });
+      }
+  };
+  document.getElementById('deleteDishBtn').onclick = function(){
+      if(!selectedDish||!currentCourse) return;
+      if(!confirm(`商品 ${selectedDish.name} (${selectedDish.id}) を削除しますか？`)) return;
+      fetch(`/api/dishes/${currentCourse}/${selectedDish.id}`,{method:'DELETE'})
+          .then(res=>res.json())
+          .then(data=>{
+              if(data.success){selectedDish=null;reloadDishes();}
+              else alert(data.error||'削除失敗');
+          });
+  };
+  document.getElementById('toggleDishBtn').onclick = function(){
+      if(!selectedDish||!currentCourse) return;
+      fetch(`/api/dishes/${currentCourse}/${selectedDish.id}`,{
+          method:'PUT',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({hidden:!selectedDish.hidden})
+      })
+      .then(res=>res.json())
+      .then(data=>{
+          if(data.success){selectedDish=null;reloadDishes();}
+          else alert(data.error||'切替失敗');
+      });
+  };
+  document.getElementById('dishCourse').addEventListener('change',reloadDishes);
+  document.getElementById('dishSort').addEventListener('change',reloadDishes);
+});
 </script>
 </body>
 </html>
