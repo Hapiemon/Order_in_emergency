@@ -14,5 +14,9 @@
     "order_stop": "",
     "close": ""
   },
-  "notice": ""
+  "notice": "",
+  "sounds": {
+    "new_order": "default",
+    "timer_alert": "default"
+  }
 }

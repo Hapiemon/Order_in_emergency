@@ -13,6 +13,7 @@
             <button class="tab-btn active" data-tab="weekday">平日</button>
             <button class="tab-btn" data-tab="weekend">週末</button>
             <button class="tab-btn" data-tab="today">本日のみ</button>
+            <button class="tab-btn" data-tab="sound">通知音</button>
         </div>
         <div class="tab-content" id="tab-weekday">
             <h2>平日の営業時間</h2>
@@ -32,14 +33,45 @@
                 <button type="submit">Save</button>
             </form>
         </div>
-        <div class="tab-content" id="tab-today" hidden>
+                <div class="tab-content" id="tab-today" hidden>
             <h2>本日の営業時間</h2>
+            <p>本日のみの営業時間を設定します。設定がない場合は、曜日に応じて自動的に平日または週末の時間が適用されます。</p>
             <form id="form-today" class="hours-form">
                 <label>Open: <input type="time" name="open"></label><br>
-                <label>L.O.: <input type="time" name="order_stop"></label><br>
-                <label>Close: <input type="time" name="close"></label><br>
-                <button type="submit">反映する</button>
+                <label>Order Stop: <input type="time" name="order_stop"></label><br>
+                <label>Close: <input type="time" name="close"></label>
             </form>
+        </div>
+
+        <div class="tab-content" id="tab-sound" hidden>
+            <h2>通知音設定</h2>
+            <div class="sound-settings">
+                <div class="sound-setting-item">
+                    <label>新規注文通知音:</label>
+                    <select id="new-order-sound">
+                        <option value="default">デフォルト</option>
+                        <option value="bell">ベル</option>
+                        <option value="chime">チャイム</option>
+                        <option value="ding">ディン</option>
+                    </select>
+                    <button onclick="testSound('order')" class="test-sound-btn">テスト</button>
+                </div>
+                <div class="sound-setting-item">
+                    <label>タイマー通知音:</label>
+                    <select id="timer-alert-sound">
+                        <option value="default">デフォルト</option>
+                        <option value="bell">ベル</option>
+                        <option value="chime">チャイム</option>
+                        <option value="ding">ディン</option>
+                    </select>
+                    <button onclick="testSound('timer')" class="test-sound-btn">テスト</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="notice-section">
+            <h2>お知らせ設定</h2>
+            <textarea id="notice-text" placeholder="お知らせを入力..."></textarea>
         </div>
         <div class="website-update-section">
             <h2>3ヶ月間更新しないとサイトは閉鎖されてしまいます！<br>今すぐ「Run until 3 months from today」をクリックしてください！</h2>
@@ -93,6 +125,10 @@
             if (data.notice !== undefined) {
                 document.querySelector('#website-update-form [name=notice]').value = data.notice;
             }
+            if (data.sounds) {
+                document.getElementById('new-order-sound').value = data.sounds.new_order || 'default';
+                document.getElementById('timer-alert-sound').value = data.sounds.timer_alert || 'default';
+            }
         });
 
         // 各フォームの保存
@@ -117,6 +153,10 @@
             fetch('/api/settings').then(res => res.json()).then(data => {
                 if (type === 'notice') {
                     data.notice = document.querySelector('#website-update-form [name=notice]').value;
+                } else if (type === 'sounds') {
+                    if (!data.sounds) data.sounds = {};
+                    data.sounds.new_order = document.getElementById('new-order-sound').value;
+                    data.sounds.timer_alert = document.getElementById('timer-alert-sound').value;
                 } else {
                     if (!data[type]) data[type] = {};
                     data[type].open = document.querySelector(`#form-${type} [name=open]`).value;
@@ -131,6 +171,33 @@
                     if (r.success) alert('保存しました');
                 });
             });
+        }
+
+        // 音声設定の自動保存
+        document.getElementById('new-order-sound').addEventListener('change', () => saveSettings('sounds'));
+        document.getElementById('timer-alert-sound').addEventListener('change', () => saveSettings('sounds'));
+
+        // テスト音声の再生
+        function testSound(type) {
+            let soundType = type === 'order' ? 
+                document.getElementById('new-order-sound').value : 
+                document.getElementById('timer-alert-sound').value;
+            
+            let audioId;
+            switch (soundType) {
+                case 'bell':
+                    audioId = 'bell-sound';
+                    break;
+                case 'chime':
+                    audioId = 'chime-sound';
+                    break;
+                case 'ding':
+                    audioId = 'ding-sound';
+                    break;
+                default:
+                    audioId = 'timer-sound';
+            }
+            document.getElementById(audioId).play();
         }
     </script>
 </body>
