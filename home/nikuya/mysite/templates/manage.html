@@ -14,9 +14,9 @@
 <body>
 <div class="container">
   <div id="manage-tabs">
-    <button class="manage-tab active" data-target="seatSection">座席管理</button>
-    <button class="manage-tab" data-target="courseSection">コース管理</button>
-    <button class="manage-tab" data-target="dishSection">商品管理</button>
+    <button class="manage-tab active" data-target="seatSection">席</button>
+    <button class="manage-tab" data-target="courseSection">コース</button>
+    <button class="manage-tab" data-target="dishSection">注文</button>
   </div>
 <section id="seatSection">
   <div class="container">
@@ -48,23 +48,14 @@ function reloadSeats() {
             const seatList = document.getElementById('seatList');
             seatList.innerHTML = '';
             seats.forEach(seat => {
-    <a href="/" class="main-nav-link nav-seat">Seat Selection</a>
-    <a href="/staff" class="main-nav-link nav-staff">Staff</a>
-    <a href="/settings" class="main-nav-link nav-settings">Settings</a>
                 const div = document.createElement('div');
                 div.className = 'seat-item';
-    <title>Seat Management</title>
                 div.textContent = seat;
                 div.onclick = () => selectSeat(div, seat);
                 if (selectedSeat === seat) div.classList.add('selected');
                 seatList.appendChild(div);
             });
-    <button class="manage-tab active" data-target="seatSection">Seat Management</button>
-    <button class="manage-tab" data-target="courseSection">Course Management</button>
-    <button class="manage-tab" data-target="dishSection">Dish Management</button>
-    <button class="manage-tab" data-target="settingsSection">Settings</button>
             updateActionBtns();
-    <h1>Seat Management</h1>
         });
 }
 function selectSeat(div, seat) {
