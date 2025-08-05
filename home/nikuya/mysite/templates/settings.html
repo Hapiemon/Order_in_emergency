@@ -5,6 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings</title>
     <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .sound-loading {
+            text-align: center;
+            padding: 40px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .sound-loading p {
+            margin: 0;
+            color: #666;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
     <div class="settings-container">
@@ -45,7 +72,12 @@
 
         <div class="tab-content" id="tab-sound" hidden>
             <h2>通知音設定</h2>
-            <div class="sound-settings">
+            <!-- ロード画面 -->
+            <div id="sound-loading" class="sound-loading">
+                <div class="loading-spinner"></div>
+                <p>音声ファイルを読み込み中...</p>
+            </div>
+            <div class="sound-settings" id="sound-settings" style="display: none;">
                 <div class="sound-setting-item">
                     <label>新規注文通知音:<br></label>
                     <select id="new-order-sound">
@@ -126,6 +158,13 @@
                     audio.src = `/static/sounds/${fn}`;
                     document.body.appendChild(audio);
                 });
+                
+                // 音声ファイル読み込み完了後にロード画面を非表示
+                setTimeout(() => {
+                    document.getElementById('sound-loading').style.display = 'none';
+                    document.getElementById('sound-settings').style.display = 'block';
+                    console.log('音声ファイルの読み込み完了');
+                }, 1000); // 1秒後に完了とする
             </script>
         </div>
         <div class="website-update-section">
@@ -135,77 +174,91 @@
         </div>
     </div>
     <script>
-        // Show last update time from localStorage
-        function updateLastUpdateText() {
-            const last = localStorage.getItem('nikuya_last_update');
-            document.getElementById('last-update').textContent = 'Last updated: ' + (last || '-');
-        }
-        updateLastUpdateText();
-        document.getElementById('update-link').addEventListener('click', function() {
-            const now = new Date();
-            const formatted = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
-            localStorage.setItem('nikuya_last_update', formatted);
+        // DOMが完全に読み込まれてから実行
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show last update time from localStorage
+            function updateLastUpdateText() {
+                const last = localStorage.getItem('nikuya_last_update');
+                document.getElementById('last-update').textContent = 'Last updated: ' + (last || '-');
+            }
             updateLastUpdateText();
-        });
-        // タブ切り替え
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                document.querySelectorAll('.tab-content').forEach(tc => {
-                    tc.style.display = 'none';
-                    tc.removeAttribute('hidden'); // hidden属性も外す
-                });
-                document.getElementById('tab-' + this.dataset.tab).style.display = '';
+            document.getElementById('update-link').addEventListener('click', function() {
+                const now = new Date();
+                const formatted = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+                localStorage.setItem('nikuya_last_update', formatted);
+                updateLastUpdateText();
             });
-        });
 
-        // 設定の初期値取得
-        fetch('/api/settings').then(res => res.json()).then(data => {
-            if (data.weekday) {
-                document.querySelector('#form-weekday [name=open]').value = data.weekday.open || '16:00';
-                document.querySelector('#form-weekday [name=order_stop]').value = data.weekday.order_stop || '22:30';
-                document.querySelector('#form-weekday [name=close]').value = data.weekday.close || '23:00';
-            }
-            if (data.weekend) {
-                document.querySelector('#form-weekend [name=open]').value = data.weekend.open || '11:00';
-                document.querySelector('#form-weekend [name=order_stop]').value = data.weekend.order_stop || '22:30';
-                document.querySelector('#form-weekend [name=close]').value = data.weekend.close || '23:00';
-            }
-            if (data.today) {
-                document.querySelector('#form-today [name=open]').value = data.today.open || '';
-                document.querySelector('#form-today [name=order_stop]').value = data.today.order_stop || '';
-                document.querySelector('#form-today [name=close]').value = data.today.close || '';
-            }
-            if (data.notice !== undefined) {
-                document.querySelector('#website-update-form [name=notice]').value = data.notice;
-            }
-            if (data.sounds) {
-                document.getElementById('new-order-sound').value = data.sounds.new_order || 'sound1';
-                document.getElementById('order-toggle-sound').value = data.sounds.order_toggle || 'sound2';
-                document.getElementById('course-start-sound').value = data.sounds.course_start || 'sound3';
-                document.getElementById('order-time-end-sound').value = data.sounds.order_time_end || 'sound4';
-                document.getElementById('seat-time-end-sound').value = data.sounds.seat_time_end || 'sound5';
-            }
-        });
+            // タブ切り替え
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    document.querySelectorAll('.tab-content').forEach(tc => {
+                        tc.style.display = 'none';
+                        tc.removeAttribute('hidden'); // hidden属性も外す
+                    });
+                    document.getElementById('tab-' + this.dataset.tab).style.display = '';
+                });
+            });
 
-        // 各フォームの保存
-        document.getElementById('form-weekday').onsubmit = function(e) {
-            e.preventDefault();
-            saveSettings('weekday');
-        };
-        document.getElementById('form-weekend').onsubmit = function(e) {
-            e.preventDefault();
-            saveSettings('weekend');
-        };
-        document.getElementById('form-today').onsubmit = function(e) {
-            e.preventDefault();
-            saveSettings('today');
-        };
-        document.getElementById('website-update-form').onsubmit = function(e) {
-            e.preventDefault();
-            saveSettings('notice');
-        };
+            // 設定の初期値取得
+            fetch('/api/settings').then(res => res.json()).then(data => {
+                console.log('Settings loaded:', data); // デバッグ用
+                
+                if (data.weekday) {
+                    document.querySelector('#form-weekday [name=open]').value = data.weekday.open || '16:00';
+                    document.querySelector('#form-weekday [name=order_stop]').value = data.weekday.order_stop || '22:30';
+                    document.querySelector('#form-weekday [name=close]').value = data.weekday.close || '23:00';
+                }
+                if (data.weekend) {
+                    document.querySelector('#form-weekend [name=open]').value = data.weekend.open || '11:00';
+                    document.querySelector('#form-weekend [name=order_stop]').value = data.weekend.order_stop || '22:30';
+                    document.querySelector('#form-weekend [name=close]').value = data.weekend.close || '23:00';
+                }
+                if (data.today) {
+                    document.querySelector('#form-today [name=open]').value = data.today.open || '';
+                    document.querySelector('#form-today [name=order_stop]').value = data.today.order_stop || '';
+                    document.querySelector('#form-today [name=close]').value = data.today.close || '';
+                }
+                
+                // 音声設定の読み込み（selectボックスが作成された後に実行）
+                setTimeout(() => {
+                    if (data.sounds) {
+                        console.log('Loading sound settings:', data.sounds); // デバッグ用
+                        const newOrderSelect = document.getElementById('new-order-sound');
+                        const orderToggleSelect = document.getElementById('order-toggle-sound');
+                        const courseStartSelect = document.getElementById('course-start-sound');
+                        const orderTimeEndSelect = document.getElementById('order-time-end-sound');
+                        const seatTimeEndSelect = document.getElementById('seat-time-end-sound');
+                        
+                        if (newOrderSelect) newOrderSelect.value = data.sounds.new_order || 'sound1';
+                        if (orderToggleSelect) orderToggleSelect.value = data.sounds.order_toggle || 'sound2';
+                        if (courseStartSelect) courseStartSelect.value = data.sounds.course_start || 'sound3';
+                        if (orderTimeEndSelect) orderTimeEndSelect.value = data.sounds.order_time_end || 'sound4';
+                        if (seatTimeEndSelect) seatTimeEndSelect.value = data.sounds.seat_time_end || 'sound5';
+                        
+                        console.log('Sound settings applied'); // デバッグ用
+                    }
+                }, 500); // タイムアウトを500msに増加
+            }).catch(error => {
+                console.error('Error loading settings:', error);
+            });
+
+            // 各フォームの保存
+            document.getElementById('form-weekday').onsubmit = function(e) {
+                e.preventDefault();
+                saveSettings('weekday');
+            };
+            document.getElementById('form-weekend').onsubmit = function(e) {
+                e.preventDefault();
+                saveSettings('weekend');
+            };
+            document.getElementById('form-today').onsubmit = function(e) {
+                e.preventDefault();
+                saveSettings('today');
+            };
+        });
 
         function saveSettings(type) {
             fetch('/api/settings').then(res => res.json()).then(data => {
