@@ -49,24 +49,82 @@
                 <div class="sound-setting-item">
                     <label>新規注文通知音:</label>
                     <select id="new-order-sound">
-                        <option value="default">デフォルト</option>
-                        <option value="bell">ベル</option>
-                        <option value="chime">チャイム</option>
-                        <option value="ding">ディン</option>
+                        <option value="sound1">サウンド1</option>
+                        <option value="sound2">サウンド2</option>
+                        <option value="sound3">サウンド3</option>
+                        <option value="sound4">サウンド4</option>
+                        <option value="sound5">サウンド5</option>
+                        <option value="sound6">サウンド6</option>
+                        <option value="sound7">サウンド7</option>
+                        <option value="sound8">サウンド8</option>
                     </select>
-                    <button onclick="testSound('order')" class="test-sound-btn">テスト</button>
+                    <button onclick="testSound('new_order')" class="test-sound-btn">テスト</button>
                 </div>
                 <div class="sound-setting-item">
-                    <label>タイマー通知音:</label>
-                    <select id="timer-alert-sound">
-                        <option value="default">デフォルト</option>
-                        <option value="bell">ベル</option>
-                        <option value="chime">チャイム</option>
-                        <option value="ding">ディン</option>
+                    <label>注文完了/キャンセル通知音:</label>
+                    <select id="order-toggle-sound">
+                        <option value="sound1">サウンド1</option>
+                        <option value="sound2">サウンド2</option>
+                        <option value="sound3">サウンド3</option>
+                        <option value="sound4">サウンド4</option>
+                        <option value="sound5">サウンド5</option>
+                        <option value="sound6">サウンド6</option>
+                        <option value="sound7">サウンド7</option>
+                        <option value="sound8">サウンド8</option>
                     </select>
-                    <button onclick="testSound('timer')" class="test-sound-btn">テスト</button>
+                    <button onclick="testSound('order_toggle')" class="test-sound-btn">テスト</button>
+                </div>
+                <div class="sound-setting-item">
+                    <label>コース開始通知音:</label>
+                    <select id="course-start-sound">
+                        <option value="sound1">サウンド1</option>
+                        <option value="sound2">サウンド2</option>
+                        <option value="sound3">サウンド3</option>
+                        <option value="sound4">サウンド4</option>
+                        <option value="sound5">サウンド5</option>
+                        <option value="sound6">サウンド6</option>
+                        <option value="sound7">サウンド7</option>
+                        <option value="sound8">サウンド8</option>
+                    </select>
+                    <button onclick="testSound('course_start')" class="test-sound-btn">テスト</button>
+                </div>
+                <div class="sound-setting-item">
+                    <label>注文時間終了通知音:</label>
+                    <select id="order-time-end-sound">
+                        <option value="sound1">サウンド1</option>
+                        <option value="sound2">サウンド2</option>
+                        <option value="sound3">サウンド3</option>
+                        <option value="sound4">サウンド4</option>
+                        <option value="sound5">サウンド5</option>
+                        <option value="sound6">サウンド6</option>
+                        <option value="sound7">サウンド7</option>
+                        <option value="sound8">サウンド8</option>
+                    </select>
+                    <button onclick="testSound('order_time_end')" class="test-sound-btn">テスト</button>
+                </div>
+                <div class="sound-setting-item">
+                    <label>席時間終了通知音:</label>
+                    <select id="seat-time-end-sound">
+                        <option value="sound1">サウンド1</option>
+                        <option value="sound2">サウンド2</option>
+                        <option value="sound3">サウンド3</option>
+                        <option value="sound4">サウンド4</option>
+                        <option value="sound5">サウンド5</option>
+                        <option value="sound6">サウンド6</option>
+                        <option value="sound7">サウンド7</option>
+                        <option value="sound8">サウンド8</option>
+                    </select>
+                    <button onclick="testSound('seat_time_end')" class="test-sound-btn">テスト</button>
                 </div>
             </div>
+            <audio id="sound1" src="/static/sounds/sound1.mp3"></audio>
+            <audio id="sound2" src="/static/sounds/sound2.mp3"></audio>
+            <audio id="sound3" src="/static/sounds/sound3.mp3"></audio>
+            <audio id="sound4" src="/static/sounds/sound4.mp3"></audio>
+            <audio id="sound5" src="/static/sounds/sound5.mp3"></audio>
+            <audio id="sound6" src="/static/sounds/sound6.mp3"></audio>
+            <audio id="sound7" src="/static/sounds/sound7.mp3"></audio>
+            <audio id="sound8" src="/static/sounds/sound8.mp3"></audio>
         </div>
 
         <div class="notice-section">

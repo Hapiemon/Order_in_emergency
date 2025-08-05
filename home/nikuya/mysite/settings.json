@@ -5,7 +5,7 @@
     "close": "23:00"
   },
   "weekend": {
-    "open": "11:00",
+    "open": "12:00",
     "order_stop": "22:30",
     "close": "23:00"
   },
@@ -17,6 +17,9 @@
   "notice": "",
   "sounds": {
     "new_order": "default",
-    "timer_alert": "default"
+    "order_toggle": "default",
+    "course_start": "default",
+    "order_time_end": "default",
+    "seat_time_end": "default"
   }
 }
