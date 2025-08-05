@@ -8,12 +8,12 @@
 </head>
 <body>
     <div class="seat-selection-header">
-        <h1>席を選んでください</h1>
-        <p>please select your seat</p>
+        <h1>Select Your Seat</h1>
+        <p>Please select your seat</p>
     </div>
     <div class="seats-list">
         {% for seat in seats %}
-            <a class="seat-link" href="/menu/{{ seat }}">席 {{ seat }}</a>
+            <a class="seat-link" href="/menu/{{ seat }}">Seat {{ seat }}</a>
         {% endfor %}
     </div>
 </body>

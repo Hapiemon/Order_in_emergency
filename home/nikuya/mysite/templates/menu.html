@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ course.course_name }} - メニュー</title>
+    <title>{{ course.course_name }} - Menu</title>
     <link rel="stylesheet" href="/static/style.css">
     <script>
         let currentOrderCount = 0;
@@ -165,12 +165,12 @@
 <body>
     <header class="menu-header">
         <h1>{{ course.course_name }}</h1>
-        <p class="price">価格: {{ course.price }}円</p>
+        <p class="price">Price: {{ course.price }} yen</p>
         <p class="description">{{ course.description }}</p>
     </header>
 
     <div class="timer-container">
-        <span id="timer-display">残り時間: 80分</span>
+        <span id="timer-display">Time Remaining: 80 min</span>
     </div>
 
     <main class="menu-container">
@@ -198,8 +198,8 @@
 
     <footer class="order-footer">
         <div class="order-summary">
-            <span>現在の注文数: <span id="current-order-count">0</span></span>
-            <button class="order-submit-button order-btn">注文する</button>
+            <span>Current Order Count: <span id="current-order-count">0</span></span>
+            <button class="order-submit-button order-btn">Place Order</button>
         </div>
     </footer>
 </body>

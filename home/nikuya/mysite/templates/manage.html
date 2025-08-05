@@ -49,44 +49,83 @@ function reloadSeats() {
             const seatList = document.getElementById('seatList');
             seatList.innerHTML = '';
             seats.forEach(seat => {
+    <a href="/" class="main-nav-link nav-seat">Seat Selection</a>
+    <a href="/staff" class="main-nav-link nav-staff">Staff</a>
+    <a href="/settings" class="main-nav-link nav-settings">Settings</a>
                 const div = document.createElement('div');
                 div.className = 'seat-item';
+    <title>Seat Management</title>
                 div.textContent = seat;
                 div.onclick = () => selectSeat(div, seat);
                 if (selectedSeat === seat) div.classList.add('selected');
                 seatList.appendChild(div);
             });
+    <button class="manage-tab active" data-target="seatSection">Seat Management</button>
+    <button class="manage-tab" data-target="courseSection">Course Management</button>
+    <button class="manage-tab" data-target="dishSection">Dish Management</button>
+    <button class="manage-tab" data-target="settingsSection">Settings</button>
             updateActionBtns();
+    <h1>Seat Management</h1>
         });
 }
 function selectSeat(div, seat) {
     selectedSeat = seat;
+        <select id="sortOrder">
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>
     document.querySelectorAll('.seat-item').forEach(d => d.classList.remove('selected'));
     div.classList.add('selected');
+        <input type="number" id="newSeat" placeholder="Seat Number" min="1" required>
+        <button type="submit">Add</button>
     updateActionBtns();
 }
+        <button id="editBtn" style="background:#28a745;">Edit</button>
+        <button id="deleteBtn" style="background:#dc3545;">Delete</button>
 function updateActionBtns() {
+    const newSeat = prompt(`Edit seat ${selectedSeat}. Enter a new number:`, selectedSeat);
     const btns = document.getElementById('actionBtns');
+    if (!confirm(`Delete seat ${selectedSeat}?`)) return;
     if (selectedSeat !== null) {
+            alert(data.error || 'Failed to add');
         btns.style.display = 'flex';
+                alert(data.error || 'Failed to edit');
     } else {
+                alert(data.error || 'Failed to delete');
         btns.style.display = 'none';
+    <h1>Course Management</h1>
     }
 }
 function addSeat(e) {
     e.preventDefault();
+        <select id="courseSort">
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>
     const seat = document.getElementById('newSeat').value;
     fetch('/api/seats', {
         method: 'POST',
+        <input type="text" id="newCourseId" placeholder="Course ID" required style="width:40%">
+        <input type="text" id="newCourseName" placeholder="Course Name" required style="width:40%">
+        <button type="submit">Add</button>
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ seat: Number(seat) })
     })
+        <button id="editCourseBtn" style="background:#28a745;">Edit</button>
+        <button id="deleteCourseBtn" style="background:#dc3545;">Delete</button>
+        <button id="toggleCourseBtn" style="background:#ffc107;color:#333;">Show/Hide</button>
     .then(res => res.json())
+    const newName = prompt(`Edit course name:`, selectedCourse.name);
     .then(data => {
+    if(!confirm(`Delete course ${selectedCourse.name} (${selectedCourse.id})?`)) return;
         if (data.success) {
+        else alert(data.error||'Failed to delete');
             document.getElementById('newSeat').value = '';
+        else alert(data.error||'Failed to edit');
             selectedSeat = null;
+        else alert(data.error||'Failed to toggle');
             reloadSeats();
+    <h1>Dish Management</h1>
         } else {
             alert(data.error || '追加失敗');
         }
@@ -94,21 +133,43 @@ function addSeat(e) {
 }
 document.getElementById('editBtn').onclick = function() {
     if (selectedSeat === null) return;
+        <select id="dishCourse">
+            <option value="">Select Course</option>
+        </select>
+        <select id="dishSort">
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>
     const newSeat = prompt(`座席 ${selectedSeat} を編集します。新しい番号を入力してください:`, selectedSeat);
     if (newSeat && !isNaN(newSeat)) {
         fetch(`/api/seats/${selectedSeat}`, {
             method: 'PUT',
+        <input type="text" id="newDishCategory" placeholder="Category" required style="width:30%">
+        <input type="text" id="newDishId" placeholder="Dish ID" required style="width:30%">
+        <input type="text" id="newDishName" placeholder="Dish Name" required style="width:30%">
+        <button type="submit">Add</button>
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ seat: Number(newSeat) })
         })
+        <button id="editDishBtn" style="background:#28a745;">Edit</button>
+        <button id="deleteDishBtn" style="background:#dc3545;">Delete</button>
+        <button id="toggleDishBtn" style="background:#ffc107;color:#333;">Show/Hide</button>
         .then(res => res.json())
+      sel.innerHTML = '<option value="">Select Course</option>';
         .then(data => {
+                  div.textContent = `${dish.name} (${dish.id}) [${dish.category}]` + (dish.hidden ? ' [Hidden]' : '');
             if (data.success) {
+      if(!currentCourse){alert('Please select a course');return;}
                 selectedSeat = null;
+      const newName = prompt('Edit dish name:',selectedDish.name);
                 reloadSeats();
+      if(!confirm(`Delete dish ${selectedDish.name} (${selectedDish.id})?`)) return;
             } else {
+          else alert(data.error||'Failed to delete');
                 alert(data.error || '編集失敗');
+          else alert(data.error||'Failed to edit');
             }
+          else alert(data.error||'Failed to toggle');
         });
     }
 };

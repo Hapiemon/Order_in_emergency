@@ -3,47 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>設定</title>
+    <title>Settings</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="settings-container">
-        <h1>設定</h1>
+        <h1>Settings</h1>
         <div class="tabs">
-            <button class="tab-btn active" data-tab="weekday">平日</button>
-            <button class="tab-btn" data-tab="weekend">土日</button>
-            <button class="tab-btn" data-tab="today">今日だけ</button>
+            <button class="tab-btn active" data-tab="weekday">Weekday</button>
+            <button class="tab-btn" data-tab="weekend">Weekend</button>
+            <button class="tab-btn" data-tab="today">Today Only</button>
         </div>
         <div class="tab-content" id="tab-weekday">
-            <h2>平日営業時間</h2>
+            <h2>Weekday Business Hours</h2>
             <form id="form-weekday" class="hours-form">
-                <label>開店: <input type="time" name="open" value="16:00"></label><br>
-                <label>オーダーストップ: <input type="time" name="order_stop" value="22:30"></label><br>
-                <label>閉店: <input type="time" name="close" value="23:00"></label><br>
-                <button type="submit">保存</button>
+                <label>Open: <input type="time" name="open" value="16:00"></label><br>
+                <label>Last Order: <input type="time" name="order_stop" value="22:30"></label><br>
+                <label>Close: <input type="time" name="close" value="23:00"></label><br>
+                <button type="submit">Save</button>
             </form>
         </div>
         <div class="tab-content" id="tab-weekend" hidden>
-            <h2>土日営業時間</h2>
+            <h2>Weekend Business Hours</h2>
             <form id="form-weekend" class="hours-form">
-                <label>開店: <input type="time" name="open" value="11:00"></label><br>
-                <label>オーダーストップ: <input type="time" name="order_stop" value="22:30"></label><br>
-                <label>閉店: <input type="time" name="close" value="23:00"></label><br>
-                <button type="submit">保存</button>
+                <label>Open: <input type="time" name="open" value="11:00"></label><br>
+                <label>Last Order: <input type="time" name="order_stop" value="22:30"></label><br>
+                <label>Close: <input type="time" name="close" value="23:00"></label><br>
+                <button type="submit">Save</button>
             </form>
         </div>
         <div class="tab-content" id="tab-today" hidden>
-            <h2>今日だけの営業時間</h2>
+            <h2>Today's Business Hours</h2>
             <form id="form-today" class="hours-form">
-                <label>開店: <input type="time" name="open"></label><br>
-                <label>オーダーストップ: <input type="time" name="order_stop"></label><br>
-                <label>閉店: <input type="time" name="close"></label><br>
-                <button type="submit">保存</button>
+                <label>Open: <input type="time" name="open"></label><br>
+                <label>Last Order: <input type="time" name="order_stop"></label><br>
+                <label>Close: <input type="time" name="close"></label><br>
+                <button type="submit">Save</button>
             </form>
         </div>
         <div class="website-update-section">
-            <h2>Webサイト更新</h2>
-            <a href="https://www.pythonanywhere.com/user/nikuya/" target="_blank" class="website-update-link">PythonAnywhere管理ページへ</a>
+            <h2>Website Update</h2>
+            <a href="https://www.pythonanywhere.com/user/nikuya/" target="_blank" class="website-update-link">Go to PythonAnywhere Admin Page</a>
         </div>
     </div>
     <script>

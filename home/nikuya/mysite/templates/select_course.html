@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>コース選択 - 席{{ seat }}</title>
+    <title>Course Selection - Seat {{ seat }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>コース選択 - 席{{ seat }}</h1>
+    <h1>Course Selection - Seat {{ seat }}</h1>
     <div class="course-container">
         {% for course_id, course_data in courses.items() %}
             {% if not course_data.hidden %}
             <div class="course-card">
                 <h2 class="course-name">{{ course_data.course_name }}</h2>
-                <p class="price">{{ "{:,}".format(course_data.price) }}円</p>
+                <p class="price">{{ ",".format(course_data.price) }} yen</p>
                 <p class="description">{{ course_data.description }}</p>
                 <form class="course-form" onsubmit="event.preventDefault(); return false;">
                     <input type="hidden" name="seat" value="{{ seat }}">
                     <input type="hidden" name="course_name" value="{{ course_id }}">
-                    <button type="button" class="select-button">このコースを選択</button>
+                    <button type="button" class="select-button">Select this course</button>
                 </form>
                 <div class="error-message"></div>
             </div>

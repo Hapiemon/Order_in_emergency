@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>注文受付終了 - 席{{ seat }}</title>
+    <title>Order Closed - Seat {{ seat }}</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="notice-container">
         <div class="notice-content">
-            <h1>📝 注文受付終了のお知らせ</h1>
+            <h1>Order Time Ended</h1>
             <div class="seat-info">
-                <h2>席 {{ seat }}</h2>
+                <h2>Seat {{ seat }}</h2>
             </div>
             <div class="message">
-                <p class="main-message">注文受付時間は終了しています。</p>
-                <p class="sub-message">お食事をお楽しみください。</p>
-                <p class="sub-message">お会計の準備をお願いいたします。</p>
+                <p class="main-message">The order time for this seat has ended.</p>
+                <p class="sub-message">Please enjoy your meal.</p>
+                <p class="sub-message">Prepare for checkout when you are ready.</p>
             </div>
             <div class="actions">
-                <a href="{{ url_for('index') }}" class="button primary">トップページに戻る</a>
+                <a href="{{ url_for('index') }}" class="button primary">Back to Home</a>
             </div>
             <div class="remaining-time" id="remaining-time">
-                <!-- JavaScript で残り時間を表示 -->
+                <!-- Remaining time will be displayed by JavaScript -->
             </div>
         </div>
     </div>

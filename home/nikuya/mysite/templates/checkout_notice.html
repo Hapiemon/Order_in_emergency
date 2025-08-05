@@ -3,25 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>お会計のご案内 - 席{{ seat }}</title>
+    <title>Checkout Notice - Seat {{ seat }}</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="notice-container">
         <div class="notice-content">
-            <h1>⏰ お時間終了のお知らせ</h1>
+            <h1>Time's Up</h1>
             <div class="seat-info">
-                <h2>席 {{ seat }}</h2>
+                <h2>Seat {{ seat }}</h2>
             </div>
             <div class="message">
-                <p class="main-message">席のお時間は終了しています。</p>
-                <p class="sub-message">伝票を持って入り口でお会計をしてください。</p>
+                <p class="main-message">Your reserved time for this seat has ended.</p>
+                <p class="sub-message">Please bring your bill to the entrance for checkout.</p>
             </div>
             <div class="actions">
-                <a href="{{ url_for('index') }}" class="button primary">トップページに戻る</a>
+                <a href="{{ url_for('index') }}" class="button primary">Back to Home</a>
             </div>
             <div class="staff-note">
-                <p><small>※ 店員がタイマーをリセットするまで新しいコースは選択できません。</small></p>
+                <p><small>* You cannot select a new course until a staff member resets the timer.</small></p>
             </div>
         </div>
     </div>
