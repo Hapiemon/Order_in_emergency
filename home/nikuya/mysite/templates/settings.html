@@ -108,20 +108,18 @@
                 const selectIds = ['new-order-sound', 'order-toggle-sound', 'course-start-sound', 'order-time-end-sound', 'seat-time-end-sound'];
                 selectIds.forEach(selectId => {
                     const select = document.getElementById(selectId);
-                    allSoundFiles.forEach(fn => {
+                    allSoundFiles.forEach((fn, index) => {
                         const option = document.createElement('option');
-                        const id = fn.replace(/\.mp3$/,'').replace(/[^\w\-]/g,'_');
-                        option.value = id;
+                        option.value = 'sound' + (index + 1);
                         option.textContent = fn.replace('.mp3', '');
                         select.appendChild(option);
                     });
                 });
                 
                 // 音声エレメントを作成
-                allSoundFiles.forEach(fn => {
-                    const id = fn.replace(/\.mp3$/,'').replace(/[^\w\-]/g,'_');
+                allSoundFiles.forEach((fn, index) => {
                     const audio = document.createElement('audio');
-                    audio.id = id;
+                    audio.id = 'sound' + (index + 1);
                     audio.src = `/static/sounds/${fn}`;
                     document.body.appendChild(audio);
                 });
@@ -180,11 +178,11 @@
                 document.querySelector('#website-update-form [name=notice]').value = data.notice;
             }
             if (data.sounds) {
-                document.getElementById('new-order-sound').value = data.sounds.new_order || '______________1';
-                document.getElementById('order-toggle-sound').value = data.sounds.order_toggle || '______________2';
-                document.getElementById('course-start-sound').value = data.sounds.course_start || '________________';
-                document.getElementById('order-time-end-sound').value = data.sounds.order_time_end || '________________________';
-                document.getElementById('seat-time-end-sound').value = data.sounds.seat_time_end || '____________';
+                document.getElementById('new-order-sound').value = data.sounds.new_order || 'sound1';
+                document.getElementById('order-toggle-sound').value = data.sounds.order_toggle || 'sound2';
+                document.getElementById('course-start-sound').value = data.sounds.course_start || 'sound3';
+                document.getElementById('order-time-end-sound').value = data.sounds.order_time_end || 'sound4';
+                document.getElementById('seat-time-end-sound').value = data.sounds.seat_time_end || 'sound5';
             }
         });
 

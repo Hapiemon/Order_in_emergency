@@ -16,10 +16,10 @@
   },
   "notice": "",
   "sounds": {
-    "new_order": "______________1",
-    "order_toggle": "______________2", 
-    "course_start": "________________",
-    "order_time_end": "________________________",
-    "seat_time_end": "____________"
+    "new_order": "sound1",
+    "order_toggle": "sound2", 
+    "course_start": "sound3",
+    "order_time_end": "sound4",
+    "seat_time_end": "sound5"
   }
 }
