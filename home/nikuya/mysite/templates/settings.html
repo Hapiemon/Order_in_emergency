@@ -47,35 +47,35 @@
             <h2>通知音設定</h2>
             <div class="sound-settings">
                 <div class="sound-setting-item">
-                    <label>新規注文通知音:</label>
+                    <label>新規注文通知音:<br></label>
                     <select id="new-order-sound">
                         <!-- 音声ファイルのオプションを動的に生成 -->
                     </select>
                     <button onclick="testSound('new_order')" class="test-sound-btn">テスト</button>
                 </div>
                 <div class="sound-setting-item">
-                    <label>注文完了/キャンセル通知音:</label>
+                    <label>注文完了/キャンセル通知音:<br></label>
                     <select id="order-toggle-sound">
                         <!-- 音声ファイルのオプションを動的に生成 -->
                     </select>
                     <button onclick="testSound('order_toggle')" class="test-sound-btn">テスト</button>
                 </div>
                 <div class="sound-setting-item">
-                    <label>コース開始通知音:</label>
+                    <label>コース開始通知音:<br></label>
                     <select id="course-start-sound">
                         <!-- 音声ファイルのオプションを動的に生成 -->
                     </select>
                     <button onclick="testSound('course_start')" class="test-sound-btn">テスト</button>
                 </div>
                 <div class="sound-setting-item">
-                    <label>注文時間終了通知音:</label>
+                    <label>注文時間終了通知音:<br></label>
                     <select id="order-time-end-sound">
                         <!-- 音声ファイルのオプションを動的に生成 -->
                     </select>
                     <button onclick="testSound('order_time_end')" class="test-sound-btn">テスト</button>
                 </div>
                 <div class="sound-setting-item">
-                    <label>席時間終了通知音:</label>
+                    <label>席時間終了通知音:<br></label>
                     <select id="seat-time-end-sound">
                         <!-- 音声ファイルのオプションを動的に生成 -->
                     </select>
@@ -131,11 +131,6 @@
                 });
             </script>
         </div>
-
-        <div class="notice-section">
-            <h2>お知らせ設定</h2>
-            <textarea id="notice-text" placeholder="お知らせを入力..."></textarea>
-        </div>
         <div class="website-update-section">
             <h2>3ヶ月間更新しないとサイトは閉鎖されてしまいます！<br>今すぐ「Run until 3 months from today」をクリックしてください！</h2>
             <a href="https://www.pythonanywhere.com/user/nikuya/" target="_blank" class="website-update-link" id="update-link">ここをタップして更新しに行く</a><br>
@@ -189,11 +184,11 @@
                 document.querySelector('#website-update-form [name=notice]').value = data.notice;
             }
             if (data.sounds) {
-                document.getElementById('new-order-sound').value = data.sounds.new_order || 'アイテムを入手1';
-                document.getElementById('order-toggle-sound').value = data.sounds.order_toggle || 'アイテムを入手2';
-                document.getElementById('course-start-sound').value = data.sounds.course_start || 'アヒルが大笑い';
-                document.getElementById('order-time-end-sound').value = data.sounds.order_time_end || 'カウントダウン電子音';
-                document.getElementById('seat-time-end-sound').value = data.sounds.seat_time_end || 'お寺の鐘';
+                document.getElementById('new-order-sound').value = data.sounds.new_order || '______________1';
+                document.getElementById('order-toggle-sound').value = data.sounds.order_toggle || '______________2';
+                document.getElementById('course-start-sound').value = data.sounds.course_start || '________________';
+                document.getElementById('order-time-end-sound').value = data.sounds.order_time_end || '________________________';
+                document.getElementById('seat-time-end-sound').value = data.sounds.seat_time_end || '____________';
             }
         });
 

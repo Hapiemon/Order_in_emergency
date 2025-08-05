@@ -16,10 +16,10 @@
   },
   "notice": "",
   "sounds": {
-    "new_order": "アイテムを入手1",
-    "order_toggle": "アイテムを入手2", 
-    "course_start": "アヒルが大笑い",
-    "order_time_end": "カウントダウン電子音",
-    "seat_time_end": "お寺の鐘"
+    "new_order": "______________1",
+    "order_toggle": "______________2", 
+    "course_start": "________________",
+    "order_time_end": "________________________",
+    "seat_time_end": "____________"
   }
 }
