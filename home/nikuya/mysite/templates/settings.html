@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>設定</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="settings-container">
+        <h1>設定</h1>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="weekday">平日</button>
+            <button class="tab-btn" data-tab="weekend">土日</button>
+            <button class="tab-btn" data-tab="today">今日だけ</button>
+        </div>
+        <div class="tab-content" id="tab-weekday">
+            <h2>平日営業時間</h2>
+            <form id="form-weekday" class="hours-form">
+                <label>開店: <input type="time" name="open" value="16:00"></label>
+                <label>オーダーストップ: <input type="time" name="order_stop" value="22:30"></label>
+                <label>閉店: <input type="time" name="close" value="23:00"></label>
+                <button type="submit">保存</button>
+            </form>
+        </div>
+        <div class="tab-content" id="tab-weekend" style="display:none;">
+            <h2>土日営業時間</h2>
+            <form id="form-weekend" class="hours-form">
+                <label>開店: <input type="time" name="open" value="11:00"></label>
+                <label>オーダーストップ: <input type="time" name="order_stop" value="22:30"></label>
+                <label>閉店: <input type="time" name="close" value="23:00"></label>
+                <button type="submit">保存</button>
+            </form>
+        </div>
+        <div class="tab-content" id="tab-today" style="display:none;">
+            <h2>今日だけの営業時間</h2>
+            <form id="form-today" class="hours-form">
+                <label>開店: <input type="time" name="open"></label>
+                <label>オーダーストップ: <input type="time" name="order_stop"></label>
+                <label>閉店: <input type="time" name="close"></label>
+                <button type="submit">保存</button>
+            </form>
+        </div>
+        <div class="website-update-section">
+            <h2>Webサイト更新</h2>
+            <form id="website-update-form">
+                <label>お知らせ: <textarea name="notice" rows="3"></textarea></label>
+                <button type="submit">保存</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // タブ切り替え
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(tc => tc.style.display = 'none');
+                document.getElementById('tab-' + this.dataset.tab).style.display = '';
+            });
+        });
+
+        // 設定の初期値取得
+        fetch('/api/settings').then(res => res.json()).then(data => {
+            if (data.weekday) {
+                document.querySelector('#form-weekday [name=open]').value = data.weekday.open || '16:00';
+                document.querySelector('#form-weekday [name=order_stop]').value = data.weekday.order_stop || '22:30';
+                document.querySelector('#form-weekday [name=close]').value = data.weekday.close || '23:00';
+            }
+            if (data.weekend) {
+                document.querySelector('#form-weekend [name=open]').value = data.weekend.open || '11:00';
+                document.querySelector('#form-weekend [name=order_stop]').value = data.weekend.order_stop || '22:30';
+                document.querySelector('#form-weekend [name=close]').value = data.weekend.close || '23:00';
+            }
+            if (data.today) {
+                document.querySelector('#form-today [name=open]').value = data.today.open || '';
+                document.querySelector('#form-today [name=order_stop]').value = data.today.order_stop || '';
+                document.querySelector('#form-today [name=close]').value = data.today.close || '';
+            }
+            if (data.notice !== undefined) {
+                document.querySelector('#website-update-form [name=notice]').value = data.notice;
+            }
+        });
+
+        // 各フォームの保存
+        document.getElementById('form-weekday').onsubmit = function(e) {
+            e.preventDefault();
+            saveSettings('weekday');
+        };
+        document.getElementById('form-weekend').onsubmit = function(e) {
+            e.preventDefault();
+            saveSettings('weekend');
+        };
+        document.getElementById('form-today').onsubmit = function(e) {
+            e.preventDefault();
+            saveSettings('today');
+        };
+        document.getElementById('website-update-form').onsubmit = function(e) {
+            e.preventDefault();
+            saveSettings('notice');
+        };
+
+        function saveSettings(type) {
+            fetch('/api/settings').then(res => res.json()).then(data => {
+                if (type === 'notice') {
+                    data.notice = document.querySelector('#website-update-form [name=notice]').value;
+                } else {
+                    if (!data[type]) data[type] = {};
+                    data[type].open = document.querySelector(`#form-${type} [name=open]`).value;
+                    data[type].order_stop = document.querySelector(`#form-${type} [name=order_stop]`).value;
+                    data[type].close = document.querySelector(`#form-${type} [name=close]`).value;
+                }
+                fetch('/api/settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                }).then(res => res.json()).then(r => {
+                    if (r.success) alert('保存しました');
+                });
+            });
+        }
+    </script>
+</body>
+</html>

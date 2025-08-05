@@ -10,12 +10,6 @@
     <div class="staff-container">
         <h1>店員用ページ</h1>
         
-        <div class="timer-management-section">
-            <h2>タイマー管理</h2>
-            <div class="timer-grid" id="timer-grid">
-                <!-- タイマー情報はJavaScriptで動的に更新 -->
-            </div>
-        </div>
 
         <div class="orders-section">
             <div class="orders-header">
@@ -41,6 +35,13 @@
                     </div>
                 </div>
                 {% endfor %}
+            </div>
+        </div>
+
+        <div class="timer-management-section">
+            <h2>タイマー管理</h2>
+            <div class="timer-grid" id="timer-grid">
+                <!-- タイマー情報はJavaScriptで動的に更新 -->
             </div>
         </div>
 
@@ -144,7 +145,8 @@
 
             const timerGrid = document.getElementById('timer-grid');
             // アクティブなタイマーがある席のみ表示
-            const activeTimers = Object.entries(data.timer_info);
+            // アクティブな席のみ表示
+            const activeTimers = Object.entries(data.timer_info).filter(([_, info]) => info.active);
             if (activeTimers.length === 0) {
                 timerGrid.innerHTML = '<p>現在カウントダウン中の席はありません</p>';
             } else {

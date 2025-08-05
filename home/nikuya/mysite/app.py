@@ -1,3 +1,64 @@
+# 営業時間・オーダーストップ判定関数
+def get_business_hours():
+    settings_path = os.path.join(BASE_DIR, 'settings.json')
+    if os.path.exists(settings_path):
+        with open(settings_path, encoding='utf-8') as f:
+            settings = json.load(f)
+    else:
+        return None
+    now = datetime.now(JST)
+    today_str = now.strftime('%Y-%m-%d')
+    weekday = now.weekday()
+    # 今日だけ設定があれば優先
+    if settings.get('today', {}).get('open') and settings.get('today', {}).get('order_stop') and settings.get('today', {}).get('close'):
+        return settings['today']
+    # 土日
+    if weekday in [5, 6]:
+        return settings.get('weekend', {})
+    # 平日
+    return settings.get('weekday', {})
+
+def is_business_open():
+    hours = get_business_hours()
+    if not hours:
+        return True  # 設定がなければ常に営業
+    now = datetime.now(JST)
+    open_time = now.replace(hour=int(hours['open'].split(':')[0]), minute=int(hours['open'].split(':')[1]), second=0, microsecond=0)
+    close_time = now.replace(hour=int(hours['close'].split(':')[0]), minute=int(hours['close'].split(':')[1]), second=0, microsecond=0)
+    if open_time > close_time:
+        close_time += timedelta(days=1)
+    return open_time <= now < close_time
+
+def is_order_open():
+    hours = get_business_hours()
+    if not hours:
+        return True
+    now = datetime.now(JST)
+    open_time = now.replace(hour=int(hours['open'].split(':')[0]), minute=int(hours['open'].split(':')[1]), second=0, microsecond=0)
+    order_stop_time = now.replace(hour=int(hours['order_stop'].split(':')[0]), minute=int(hours['order_stop'].split(':')[1]), second=0, microsecond=0)
+    if order_stop_time < open_time:
+        order_stop_time += timedelta(days=1)
+    return open_time <= now < order_stop_time
+# 営業時間・お知らせ設定API
+@app.route('/api/settings', methods=['GET', 'POST'])
+def api_settings():
+    settings_path = os.path.join(BASE_DIR, 'settings.json')
+    if request.method == 'GET':
+        if os.path.exists(settings_path):
+            with open(settings_path, encoding='utf-8') as f:
+                data = json.load(f)
+        else:
+            data = {}
+        return jsonify(data)
+    else:
+        data = request.json
+        with open(settings_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return jsonify({'success': True})
+# 設定ページ
+@app.route('/settings')
+def settings():
+    return render_template('settings.html')
 from flask import Flask, render_template, request, jsonify, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
@@ -253,6 +314,8 @@ def get_seat_status(seat):
 
 @app.route('/')
 def index():
+    if not is_business_open():
+        return render_template('closed.html')
     seats_path = os.path.join(BASE_DIR, 'seats.json')
     if os.path.exists(seats_path):
         with open(seats_path, encoding='utf-8') as f:
@@ -263,6 +326,8 @@ def index():
 
 @app.route('/seat/<int:seat>')
 def select_course(seat):
+    if not is_business_open():
+        return render_template('closed.html')
     seats_path = os.path.join(BASE_DIR, 'seats.json')
     if os.path.exists(seats_path):
         with open(seats_path, encoding='utf-8') as f:
@@ -287,6 +352,8 @@ def select_course(seat):
 
 @app.route('/menu/<int:seat>')
 def menu(seat):
+    if not is_business_open():
+        return render_template('closed.html')
     seats_path = os.path.join(BASE_DIR, 'seats.json')
     if os.path.exists(seats_path):
         with open(seats_path, encoding='utf-8') as f:
@@ -338,7 +405,16 @@ def set_course():
     seat = int(request.form['seat'])
     course_id = request.form['course_name']  # 実際にはコースIDが送信される
     
-    if seat not in SEATS or course_id not in COURSE_MENUS:
+    # seats.jsonから座席リストを取得
+    seats_path = os.path.join(BASE_DIR, 'seats.json')
+    if os.path.exists(seats_path):
+        with open(seats_path, encoding='utf-8') as f:
+            seats = json.load(f)
+    else:
+        seats = SEATS
+    # seats.jsonの値がstr型の場合もあるのでint型で比較
+    seats_int = [int(s) for s in seats]
+    if seat not in seats_int or course_id not in COURSE_MENUS:
         return jsonify({'success': False, 'error': '無効な席番号またはコースIDです'})
     
     # コースを選択（コースIDを保存）
@@ -346,12 +422,23 @@ def set_course():
     
     # コースの時間を取得
     order_time, seat_time = get_course_times(course_id)
-    
-    # タイマーを開始
     now = datetime.now(JST)
-    order_end = now + timedelta(minutes=order_time)
-    seat_end = order_end + timedelta(minutes=seat_time)
-    
+
+    # 営業時間設定からオーダーストップ時刻を取得
+    hours = get_business_hours()
+    if hours and hours.get('order_stop'):
+        order_stop_time = now.replace(hour=int(hours['order_stop'].split(':')[0]), minute=int(hours['order_stop'].split(':')[1]), second=0, microsecond=0)
+        if order_stop_time < now:
+            order_stop_time += timedelta(days=1)
+        # order_endはorder_stop_timeとnow+order_timeの早い方
+        order_end = min(now + timedelta(minutes=order_time), order_stop_time)
+        # 実際の注文タイマー分数
+        actual_order_time = int((order_end - now).total_seconds() // 60)
+        seat_end = order_end + timedelta(minutes=seat_time)
+    else:
+        order_end = now + timedelta(minutes=order_time)
+        seat_end = order_end + timedelta(minutes=seat_time)
+
     seat_timers[seat] = {
         'order_end': order_end,
         'seat_end': seat_end
@@ -393,6 +480,9 @@ def set_course():
 @app.route('/order_check', methods=['POST'])
 def order_check():
     index = int(request.form['index'])
+
+    # seats.jsonから座席リストを取得
+    seats_path = os.path.join(BASE_DIR, 'seats.json')
     checked = request.form['checked'] == 'true'
 
     if 0 <= index < len(orders):
@@ -461,36 +551,55 @@ def staff_data():
     expired = expired_seats
     now = datetime.now(JST)
     
-    # 各席のタイマー情報を取得（アクティブなタイマーのみ）
+    # seats.jsonから座席リストを取得し、全席分のタイマー情報を返す
+    seats_path = os.path.join(BASE_DIR, 'seats.json')
+    if os.path.exists(seats_path):
+        with open(seats_path, encoding='utf-8') as f:
+            seats = json.load(f)
+    else:
+        seats = SEATS
+    # 型変換（int）
+    seats_int = [int(s) for s in seats]
+
     timer_info = {}
-    for seat in SEATS:
+    for seat in seats_int:
         if seat in seat_timers:
             order_remaining = seat_timers[seat]['order_end'] - now
             seat_remaining = seat_timers[seat]['seat_end'] - now
-            
-            # アクティブなタイマーがある場合のみ追加
-            if order_remaining.total_seconds() > 0 or seat_remaining.total_seconds() > 0:
-                order_minutes = max(0, int(order_remaining.total_seconds() / 60))
-                order_seconds = max(0, int(order_remaining.total_seconds() % 60))
-                seat_minutes = max(0, int(seat_remaining.total_seconds() / 60))
-                seat_seconds = max(0, int(seat_remaining.total_seconds() % 60))
-                
-                # コースIDからコース名を取得
-                course_id = seat_courses.get(seat, None)
-                course_name = None
-                if course_id and course_id in COURSE_MENUS:
-                    course_name = COURSE_MENUS[course_id].get('course_name', course_id)
-                
-                timer_info[seat] = {
-                    'active': True,
-                    'order_remaining_minutes': order_minutes,
-                    'order_remaining_seconds': order_seconds,
-                    'seat_remaining_minutes': seat_minutes,
-                    'seat_remaining_seconds': seat_seconds,
-                    'order_end_time': format_jst_time(seat_timers[seat]['order_end']),
-                    'seat_end_time': format_jst_time(seat_timers[seat]['seat_end']),
-                    'course': course_name
-                }
+
+            order_minutes = max(0, int(order_remaining.total_seconds() / 60))
+            order_seconds = max(0, int(order_remaining.total_seconds() % 60))
+            seat_minutes = max(0, int(seat_remaining.total_seconds() / 60))
+            seat_seconds = max(0, int(seat_remaining.total_seconds() % 60))
+
+            # コースIDからコース名を取得
+            course_id = seat_courses.get(seat, None)
+            course_name = None
+            if course_id and course_id in COURSE_MENUS:
+                course_name = COURSE_MENUS[course_id].get('course_name', course_id)
+
+            timer_info[seat] = {
+                'active': True,
+                'order_remaining_minutes': order_minutes,
+                'order_remaining_seconds': order_seconds,
+                'seat_remaining_minutes': seat_minutes,
+                'seat_remaining_seconds': seat_seconds,
+                'order_end_time': format_jst_time(seat_timers[seat]['order_end']),
+                'seat_end_time': format_jst_time(seat_timers[seat]['seat_end']),
+                'course': course_name
+            }
+        else:
+            # タイマーがない席も必ず返す（非アクティブ）
+            timer_info[seat] = {
+                'active': False,
+                'order_remaining_minutes': 0,
+                'order_remaining_seconds': 0,
+                'seat_remaining_minutes': 0,
+                'seat_remaining_seconds': 0,
+                'order_end_time': None,
+                'seat_end_time': None,
+                'course': None
+            }
     
     def serialize_order(o):
         course = COURSE_MENUS[o['course_name']]

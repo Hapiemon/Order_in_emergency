@@ -1,0 +1,18 @@
+{
+  "weekday": {
+    "open": "16:00",
+    "order_stop": "22:30",
+    "close": "23:00"
+  },
+  "weekend": {
+    "open": "11:00",
+    "order_stop": "22:30",
+    "close": "23:00"
+  },
+  "today": {
+    "open": "",
+    "order_stop": "",
+    "close": ""
+  },
+  "notice": ""
+}
