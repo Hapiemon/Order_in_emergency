@@ -10,49 +10,65 @@
     <div class="settings-container">
         <h1>Settings</h1>
         <div class="tabs">
-            <button class="tab-btn active" data-tab="weekday">Weekday</button>
-            <button class="tab-btn" data-tab="weekend">Weekend</button>
-            <button class="tab-btn" data-tab="today">Today Only</button>
+            <button class="tab-btn active" data-tab="weekday">平日</button>
+            <button class="tab-btn" data-tab="weekend">週末</button>
+            <button class="tab-btn" data-tab="today">本日のみ</button>
         </div>
         <div class="tab-content" id="tab-weekday">
-            <h2>Weekday Business Hours</h2>
+            <h2>平日の営業時間</h2>
             <form id="form-weekday" class="hours-form">
                 <label>Open: <input type="time" name="open" value="16:00"></label><br>
-                <label>Last Order: <input type="time" name="order_stop" value="22:30"></label><br>
+                <label>L.O.: <input type="time" name="order_stop" value="22:30"></label><br>
                 <label>Close: <input type="time" name="close" value="23:00"></label><br>
                 <button type="submit">Save</button>
             </form>
         </div>
         <div class="tab-content" id="tab-weekend" hidden>
-            <h2>Weekend Business Hours</h2>
+            <h2>週末の営業時間</h2>
             <form id="form-weekend" class="hours-form">
                 <label>Open: <input type="time" name="open" value="11:00"></label><br>
-                <label>Last Order: <input type="time" name="order_stop" value="22:30"></label><br>
+                <label>L.O.: <input type="time" name="order_stop" value="22:30"></label><br>
                 <label>Close: <input type="time" name="close" value="23:00"></label><br>
                 <button type="submit">Save</button>
             </form>
         </div>
         <div class="tab-content" id="tab-today" hidden>
-            <h2>Today's Business Hours</h2>
+            <h2>本日の営業時間</h2>
             <form id="form-today" class="hours-form">
                 <label>Open: <input type="time" name="open"></label><br>
-                <label>Last Order: <input type="time" name="order_stop"></label><br>
+                <label>L.O.: <input type="time" name="order_stop"></label><br>
                 <label>Close: <input type="time" name="close"></label><br>
                 <button type="submit">Save</button>
             </form>
         </div>
         <div class="website-update-section">
-            <h2>Website Update</h2>
-            <a href="https://www.pythonanywhere.com/user/nikuya/" target="_blank" class="website-update-link">Go to PythonAnywhere Admin Page</a>
+            <h2>3ヶ月でこのWEBサイトは終了してしまいます！</h2>
+            <span id="last-update">Last updated: -</span>
+            <a href="https://www.pythonanywhere.com/user/nikuya/" target="_blank" class="website-update-link" id="update-link">Go to PythonAnywhere Admin Page</a>
         </div>
     </div>
     <script>
+        // Show last update time from localStorage
+        function updateLastUpdateText() {
+            const last = localStorage.getItem('nikuya_last_update');
+            document.getElementById('last-update').textContent = 'Last updated: ' + (last || '-');
+        }
+        updateLastUpdateText();
+        document.getElementById('update-link').addEventListener('click', function() {
+            const now = new Date();
+            const formatted = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0') + ' ' + String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+            localStorage.setItem('nikuya_last_update', formatted);
+            updateLastUpdateText();
+        });
         // タブ切り替え
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', function() {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
                 this.classList.add('active');
-                document.querySelectorAll('.tab-content').forEach(tc => tc.style.display = 'none');
+                document.querySelectorAll('.tab-content').forEach(tc => {
+                    tc.style.display = 'none';
+                    tc.removeAttribute('hidden'); // hidden属性も外す
+                });
                 document.getElementById('tab-' + this.dataset.tab).style.display = '';
             });
         });

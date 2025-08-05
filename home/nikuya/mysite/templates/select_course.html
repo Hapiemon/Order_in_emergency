@@ -13,12 +13,12 @@
             {% if not course_data.hidden %}
             <div class="course-card">
                 <h2 class="course-name">{{ course_data.course_name }}</h2>
-                <p class="price">{{ ",".format(course_data.price) }} yen</p>
+                <p class="price">{{ "{:,}".format(course_data.price) }} yen per person</p>
                 <p class="description">{{ course_data.description }}</p>
                 <form class="course-form" onsubmit="event.preventDefault(); return false;">
                     <input type="hidden" name="seat" value="{{ seat }}">
                     <input type="hidden" name="course_name" value="{{ course_id }}">
-                    <button type="button" class="select-button">Select this course</button>
+                    <button type="button" class="select-button">Select</button>
                 </form>
                 <div class="error-message"></div>
             </div>
@@ -44,7 +44,7 @@
                 return;
             }
 
-            if (!confirm('このコースで開始します。よろしいですか？')) {
+            if (!confirm('Start?')) {
                 return;
             }
 
@@ -52,8 +52,8 @@
                 // グローバルフラグと個別ボタンの両方を無効化
                 isProcessing = true;
                 submitButton.disabled = true;
-                submitButton.textContent = '処理中...';
-                
+                submitButton.textContent = 'Processing...';
+
                 const response = await fetch('{{ url_for("set_course") }}', {
                     method: 'POST',
                     headers: {
@@ -68,17 +68,17 @@
                     // 成功時は即座にリダイレクト
                     window.location.href = data.redirect;
                 } else {
-                    errorDiv.textContent = data.error || 'コースの選択に失敗しました';
+                    errorDiv.textContent = data.error || 'Failed to select course';
                     errorDiv.style.display = 'block';
                     submitButton.disabled = false;
-                    submitButton.textContent = 'このコースを選択';
+                    submitButton.textContent = 'Select this course';
                     isProcessing = false;
                 }
             } catch (error) {
-                errorDiv.textContent = 'エラーが発生しました';
+                errorDiv.textContent = 'An error occurred';
                 errorDiv.style.display = 'block';
                 submitButton.disabled = false;
-                submitButton.textContent = 'このコースを選択';
+                submitButton.textContent = 'Select this course';
                 isProcessing = false;
             }
         }
