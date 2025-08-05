@@ -81,6 +81,9 @@
                     </select>
                     <button onclick="testSound('seat_time_end')" class="test-sound-btn">テスト</button>
                 </div>
+                <div class="sound-save-section">
+                    <button onclick="saveSoundSettings()" class="save-sound-btn">通知音設定を保存</button>
+                </div>
             </div>
             <!-- 全ての音声ファイルを動的に生成 -->
             <script>
@@ -231,12 +234,10 @@
             });
         }
 
-        // 音声設定の自動保存
-        document.getElementById('new-order-sound').addEventListener('change', () => saveSettings('sounds'));
-        document.getElementById('order-toggle-sound').addEventListener('change', () => saveSettings('sounds'));
-        document.getElementById('course-start-sound').addEventListener('change', () => saveSettings('sounds'));
-        document.getElementById('order-time-end-sound').addEventListener('change', () => saveSettings('sounds'));
-        document.getElementById('seat-time-end-sound').addEventListener('change', () => saveSettings('sounds'));
+        // 音声設定の手動保存
+        function saveSoundSettings() {
+            saveSettings('sounds');
+        }
 
         // テスト音声の再生
         function testSound(type) {
