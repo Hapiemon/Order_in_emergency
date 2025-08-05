@@ -1,3 +1,33 @@
+
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime, timedelta
+import os
+import json
+import pytz
+import threading
+import time
+from datetime import datetime, timedelta
+
+app = Flask(__name__)
+
+# 日本のタイムゾーンを設定
+JST = pytz.timezone('Asia/Tokyo')
+
+# 絶対パスの設定
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+
+app.static_folder = STATIC_DIR
+app.template_folder = TEMPLATES_DIR
+
+# MySQLデータベースの設定
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://nikuya:Kids1109@nikuya.mysql.pythonanywhere-services.com/nikuya$nikuya_orders'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
 # 営業時間・オーダーストップ判定関数
 def get_business_hours():
     settings_path = os.path.join(BASE_DIR, 'settings.json')
@@ -39,6 +69,7 @@ def is_order_open():
     if order_stop_time < open_time:
         order_stop_time += timedelta(days=1)
     return open_time <= now < order_stop_time
+
 # 営業時間・お知らせ設定API
 @app.route('/api/settings', methods=['GET', 'POST'])
 def api_settings():
@@ -55,38 +86,11 @@ def api_settings():
         with open(settings_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         return jsonify({'success': True})
+
 # 設定ページ
 @app.route('/settings')
 def settings():
     return render_template('settings.html')
-from flask import Flask, render_template, request, jsonify, redirect, url_for
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timedelta
-import os
-import json
-import pytz
-import threading
-import time
-from datetime import datetime, timedelta
-
-app = Flask(__name__)
-
-# 日本のタイムゾーンを設定
-JST = pytz.timezone('Asia/Tokyo')
-
-# 絶対パスの設定
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, 'static')
-TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
-
-app.static_folder = STATIC_DIR
-app.template_folder = TEMPLATES_DIR
-
-# MySQLデータベースの設定
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://nikuya:Kids1109@nikuya.mysql.pythonanywhere-services.com/nikuya$nikuya_orders'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
 
 # カスタムフィルターの追加
 @app.template_filter('fromjson')
