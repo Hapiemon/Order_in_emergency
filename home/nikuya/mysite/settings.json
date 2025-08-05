@@ -16,10 +16,10 @@
   },
   "notice": "",
   "sounds": {
-    "new_order": "default",
-    "order_toggle": "default",
-    "course_start": "default",
-    "order_time_end": "default",
-    "seat_time_end": "default"
+    "new_order": "アイテムを入手1",
+    "order_toggle": "アイテムを入手2", 
+    "course_start": "アヒルが大笑い",
+    "order_time_end": "カウントダウン電子音",
+    "seat_time_end": "お寺の鐘"
   }
 }
