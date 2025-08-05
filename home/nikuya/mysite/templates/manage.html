@@ -1,8 +1,3 @@
-<nav class="main-nav">
-    <a href="/" class="main-nav-link nav-seat">席選択</a>
-    <a href="/staff" class="main-nav-link nav-staff">スタッフ</a>
-    <a href="/settings" class="main-nav-link nav-settings">設定</a>
-</nav>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -12,484 +7,516 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<div class="container">
-  <div id="manage-tabs">
-    <button class="manage-tab active" data-target="seatSection">席</button>
-    <button class="manage-tab" data-target="courseSection">コース</button>
-    <button class="manage-tab" data-target="dishSection">注文</button>
-  </div>
-<section id="seatSection">
-  <div class="container">
-    <h1>座席管理</h1>
-    <div class="seat-actions">
-      <select id="sortOrder">
+<div class="manage-container">
+  <div class="manage-title">管理画面</div>
+  <section id="seatSection" class="manage-section active">
+    <h2 class="manage-section-title">座席管理</h2>
+    <div class="manage-actions seat-actions">
+      <label for="sortOrder" class="manage-label">並び順</label>
+      <select id="sortOrder" class="manage-select">
         <option value="asc">小さい順</option>
         <option value="desc">大きい順</option>
       </select>
     </div>
-    <div class="seat-list" id="seatList"></div>
-    <form class="add-form" onsubmit="addSeat(event)">
-      <input type="number" id="newSeat" placeholder="座席番号" min="1" required>
-      <button type="submit">追加</button>
+    <div class="seat-list manage-list" id="seatList"></div>
+    <form class="add-form manage-form" id="addSeatForm" autocomplete="off">
+      <input type="number" id="newSeat" class="manage-input" placeholder="座席番号" min="1" required>
+      <button type="submit" class="manage-btn add-btn">追加</button>
     </form>
-    <div id="actionBtns">
-      <button id="editBtn" style="background:#28a745;">編集</button>
-      <button id="deleteBtn" style="background:#dc3545;">削除</button>
+    <div id="actionBtns" class="manage-action-btns">
+      <button id="editBtn" class="manage-btn edit-btn">編集</button>
+      <button id="deleteBtn" class="manage-btn delete-btn">削除</button>
     </div>
-  </div>
-</section>
-<script>
-let selectedSeat = null;
-function reloadSeats() {
-    const order = document.getElementById('sortOrder').value;
-    fetch(`/api/seats?order=${order}`)
-        .then(res => res.json())
-        .then(seats => {
-            const seatList = document.getElementById('seatList');
-            seatList.innerHTML = '';
-            seats.forEach(seat => {
-                const div = document.createElement('div');
-                div.className = 'seat-item';
-                div.textContent = seat;
-                div.onclick = () => selectSeat(div, seat);
-                if (selectedSeat === seat) div.classList.add('selected');
-                seatList.appendChild(div);
-            });
-            updateActionBtns();
-        });
-}
-function selectSeat(div, seat) {
-    selectedSeat = seat;
-        <select id="sortOrder">
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-        </select>
-    document.querySelectorAll('.seat-item').forEach(d => d.classList.remove('selected'));
-    div.classList.add('selected');
-        <input type="number" id="newSeat" placeholder="Seat Number" min="1" required>
-        <button type="submit">Add</button>
-    updateActionBtns();
-}
-        <button id="editBtn" style="background:#28a745;">Edit</button>
-        <button id="deleteBtn" style="background:#dc3545;">Delete</button>
-function updateActionBtns() {
-    const newSeat = prompt(`Edit seat ${selectedSeat}. Enter a new number:`, selectedSeat);
-    const btns = document.getElementById('actionBtns');
-    if (!confirm(`Delete seat ${selectedSeat}?`)) return;
-    if (selectedSeat !== null) {
-            alert(data.error || 'Failed to add');
-        btns.style.display = 'flex';
-                alert(data.error || 'Failed to edit');
-    } else {
-                alert(data.error || 'Failed to delete');
-        btns.style.display = 'none';
-    <h1>Course Management</h1>
-    }
-}
-function addSeat(e) {
-    e.preventDefault();
-        <select id="courseSort">
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-        </select>
-    const seat = document.getElementById('newSeat').value;
-    fetch('/api/seats', {
-        method: 'POST',
-        <input type="text" id="newCourseId" placeholder="Course ID" required style="width:40%">
-        <input type="text" id="newCourseName" placeholder="Course Name" required style="width:40%">
-        <button type="submit">Add</button>
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ seat: Number(seat) })
-    })
-        <button id="editCourseBtn" style="background:#28a745;">Edit</button>
-        <button id="deleteCourseBtn" style="background:#dc3545;">Delete</button>
-        <button id="toggleCourseBtn" style="background:#ffc107;color:#333;">Show/Hide</button>
-    .then(res => res.json())
-    const newName = prompt(`Edit course name:`, selectedCourse.name);
-    .then(data => {
-    if(!confirm(`Delete course ${selectedCourse.name} (${selectedCourse.id})?`)) return;
-        if (data.success) {
-        else alert(data.error||'Failed to delete');
-            document.getElementById('newSeat').value = '';
-        else alert(data.error||'Failed to edit');
-            selectedSeat = null;
-        else alert(data.error||'Failed to toggle');
-            reloadSeats();
-    <h1>Dish Management</h1>
-        } else {
-            alert(data.error || '追加失敗');
-        }
-    });
-}
-document.getElementById('editBtn').onclick = function() {
-    if (selectedSeat === null) return;
-        <select id="dishCourse">
-            <option value="">Select Course</option>
-        </select>
-        <select id="dishSort">
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-        </select>
-    const newSeat = prompt(`座席 ${selectedSeat} を編集します。新しい番号を入力してください:`, selectedSeat);
-    if (newSeat && !isNaN(newSeat)) {
-        fetch(`/api/seats/${selectedSeat}`, {
-            method: 'PUT',
-        <input type="text" id="newDishCategory" placeholder="Category" required style="width:30%">
-        <input type="text" id="newDishId" placeholder="Dish ID" required style="width:30%">
-        <input type="text" id="newDishName" placeholder="Dish Name" required style="width:30%">
-        <button type="submit">Add</button>
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ seat: Number(newSeat) })
-        })
-        <button id="editDishBtn" style="background:#28a745;">Edit</button>
-        <button id="deleteDishBtn" style="background:#dc3545;">Delete</button>
-        <button id="toggleDishBtn" style="background:#ffc107;color:#333;">Show/Hide</button>
-        .then(res => res.json())
-      sel.innerHTML = '<option value="">Select Course</option>';
-        .then(data => {
-                  div.textContent = `${dish.name} (${dish.id}) [${dish.category}]` + (dish.hidden ? ' [Hidden]' : '');
-            if (data.success) {
-      if(!currentCourse){alert('Please select a course');return;}
-                selectedSeat = null;
-      const newName = prompt('Edit dish name:',selectedDish.name);
-                reloadSeats();
-      if(!confirm(`Delete dish ${selectedDish.name} (${selectedDish.id})?`)) return;
-            } else {
-          else alert(data.error||'Failed to delete');
-                alert(data.error || '編集失敗');
-          else alert(data.error||'Failed to edit');
-            }
-          else alert(data.error||'Failed to toggle');
-        });
-    }
-};
-document.getElementById('deleteBtn').onclick = function() {
-    if (selectedSeat === null) return;
-    if (!confirm(`座席 ${selectedSeat} を削除しますか？`)) return;
-    fetch(`/api/seats/${selectedSeat}`, { method: 'DELETE' })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                selectedSeat = null;
-                reloadSeats();
-            } else {
-                alert(data.error || '削除失敗');
-            }
-        });
-};
-document.getElementById('sortOrder').addEventListener('change', reloadSeats);
-window.onload = reloadSeats;
-</script>
-
-<!-- コース管理UI -->
-<section id="courseSection" hidden>
-  <div class="container course-container">
-    <h1>コース管理</h1>
-    <div class="course-actions">
-        <select id="courseSort">
-            <option value="asc">小さい順</option>
-            <option value="desc">大きい順</option>
-        </select>
+    <div id="seatError" class="manage-error"></div>
+  </section>
+  <section id="courseSection" class="manage-section">
+    <h2 class="manage-section-title">コース管理</h2>
+    <div class="manage-actions course-actions">
+      <label for="courseSort" class="manage-label">並び順</label>
+      <select id="courseSort" class="manage-select">
+        <option value="asc">小さい順</option>
+        <option value="desc">大きい順</option>
+      </select>
     </div>
-    <div class="course-list" id="courseList"></div>
-    <form class="add-form" onsubmit="addCourse(event)">
-        <input type="text" id="newCourseId" placeholder="コースID" required style="width:40%">
-        <input type="text" id="newCourseName" placeholder="コース名" required style="width:40%">
-        <button type="submit">追加</button>
+    <div class="course-list manage-list" id="courseList"></div>
+    <form class="add-form manage-form" id="addCourseForm" autocomplete="off">
+      <input type="text" id="newCourseId" class="manage-input" placeholder="コースID" required>
+      <input type="text" id="newCourseName" class="manage-input" placeholder="コース名" required>
+      <button type="submit" class="manage-btn add-btn">追加</button>
     </form>
-    <div id="courseActionBtns">
-        <button id="editCourseBtn" style="background:#28a745;">編集</button>
-        <button id="deleteCourseBtn" style="background:#dc3545;">削除</button>
-        <button id="toggleCourseBtn" style="background:#ffc107;color:#333;">表示/非表示</button>
+    <div id="courseActionBtns" class="manage-action-btns">
+      <button id="editCourseBtn" class="manage-btn edit-btn">編集</button>
+      <button id="deleteCourseBtn" class="manage-btn delete-btn">削除</button>
+      <button id="toggleCourseBtn" class="manage-btn toggle-btn">表示/非表示</button>
     </div>
-  </div>
-</section>
-
+    <div id="courseError" class="manage-error"></div>
+  </section>
+  <section id="dishSection" class="manage-section">
+    <h2 class="manage-section-title">商品管理</h2>
+    <div class="manage-actions dish-actions">
+      <label for="dishCourse" class="manage-label">コース</label>
+      <select id="dishCourse" class="manage-select"></select>
+      <label for="dishSort" class="manage-label">並び順</label>
+      <select id="dishSort" class="manage-select">
+        <option value="asc">小さい順</option>
+        <option value="desc">大きい順</option>
+      </select>
+    </div>
+    <div class="dish-list manage-list" id="dishList"></div>
+    <form class="add-form manage-form" id="addDishForm" autocomplete="off">
+      <input type="text" id="newDishCategory" class="manage-input" placeholder="カテゴリ" required>
+      <input type="text" id="newDishId" class="manage-input" placeholder="商品ID" required>
+      <input type="text" id="newDishName" class="manage-input" placeholder="商品名" required>
+      <button type="submit" class="manage-btn add-btn">追加</button>
+    </form>
+    <div id="dishActionBtns" class="manage-action-btns">
+      <button id="editDishBtn" class="manage-btn edit-btn">編集</button>
+      <button id="deleteDishBtn" class="manage-btn delete-btn">削除</button>
+      <button id="toggleDishBtn" class="manage-btn toggle-btn">表示/非表示</button>
+    </div>
+    <div id="dishError" class="manage-error"></div>
+  </section>
+</div>
 <script>
-let selectedCourse = null;
-function reloadCourses() {
-    const order = document.getElementById('courseSort').value;
-    fetch(`/api/courses`)
-        .then(res => res.json())
-        .then(courses => {
-            if(order==='asc') courses.sort((a,b)=>a.id.localeCompare(b.id));
-            else courses.sort((a,b)=>b.id.localeCompare(a.id));
-            const courseList = document.getElementById('courseList');
-            courseList.innerHTML = '';
-            courses.forEach(course => {
-                const div = document.createElement('div');
-                div.className = 'seat-item';
-                div.textContent = `${course.name} (${course.id})` + (course.hidden ? ' [非表示]' : '');
-                div.onclick = () => selectCourse(div, course);
-                if(selectedCourse && selectedCourse.id===course.id) div.classList.add('selected');
-                courseList.appendChild(div);
-            });
-            updateCourseBtns();
-        });
-}
-function selectCourse(div, course) {
-    selectedCourse = course;
-    document.querySelectorAll('.course-list .seat-item').forEach(d => d.classList.remove('selected'));
-    div.classList.add('selected');
-    updateCourseBtns();
-}
-function updateCourseBtns() {
-    const btns = document.getElementById('courseActionBtns');
-    if(selectedCourse) btns.style.display = 'flex';
-<script>
-// タブ切り替え
-document.addEventListener('DOMContentLoaded', () => {
-  // タブ切り替え
-  document.querySelectorAll('.manage-tab').forEach(btn => {
-    btn.onclick = function() {
-      document.querySelectorAll('.manage-tab').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      document.getElementById('seatSection').hidden = true;
-      document.getElementById('courseSection').hidden = true;
-      document.getElementById('dishSection').hidden = true;
-      document.getElementById(this.dataset.target).hidden = false;
-    };
+// ======== セクション管理 ========
+function showSection(sectionId) {
+  // すべてのセクションを非表示
+  document.querySelectorAll('.manage-section').forEach(section => {
+    section.classList.remove('active');
   });
-  // 初期表示
-  document.getElementById('seatSection').hidden = false;
-  document.getElementById('courseSection').hidden = true;
-  document.getElementById('dishSection').hidden = true;
+  // 選択されたセクションを表示
+  document.getElementById(sectionId).classList.add('active');
+}
 
-  // 座席管理
-  let selectedSeat = null;
-  function reloadSeats() {
-    const order = document.getElementById('sortOrder').value;
-    fetch(`/api/seats?order=${order}`)
-      .then(res => res.json())
-      .then(seats => {
-        const seatList = document.getElementById('seatList');
-        seatList.innerHTML = '';
+// セクション切り替えボタン
+const navItems = [
+  { id: 'seatSection', text: '座席管理' },
+  { id: 'courseSection', text: 'コース管理' },
+  { id: 'dishSection', text: '商品管理' }
+];
+
+// ナビゲーションボタンの作成
+const nav = document.createElement('div');
+nav.className = 'section-nav';
+navItems.forEach(item => {
+  const button = document.createElement('button');
+  button.className = 'section-nav-btn';
+  button.textContent = item.text;
+  button.onclick = () => showSection(item.id);
+  nav.appendChild(button);
+});
+
+// ナビゲーションを.manage-containerの最初に挿入
+document.querySelector('.manage-container').insertBefore(nav, document.querySelector('.manage-title'));
+
+// ======== 座席管理 ========
+let seat_selected = null;
+function seat_reload() {
+  const order = document.getElementById('sortOrder').value;
+  fetch(`/api/seats?order=${order}`)
+    .then(res => res.json())
+    .then(seats => {
+      const seatList = document.getElementById('seatList');
+      seatList.innerHTML = '';
+      if (!Array.isArray(seats) || seats.length === 0) {
+        seatList.innerHTML = '<div style="color:#888;text-align:center;width:100%;">座席がありません</div>';
+      } else {
         seats.forEach(seat => {
           const div = document.createElement('div');
           div.className = 'seat-item';
           div.textContent = seat;
-          div.onclick = () => selectSeat(div, seat);
-          if (selectedSeat === seat) div.classList.add('selected');
+          div.onclick = () => seat_select(div, seat);
+          if (seat_selected === seat) div.classList.add('selected');
           seatList.appendChild(div);
         });
-        updateActionBtns();
-      });
-  }
-  function selectSeat(div, seat) {
-    selectedSeat = seat;
-    document.querySelectorAll('.seat-item').forEach(d => d.classList.remove('selected'));
-    div.classList.add('selected');
-    updateActionBtns();
-  }
-  function updateActionBtns() {
-    const btns = document.getElementById('actionBtns');
-    if (selectedSeat !== null) {
-      btns.style.display = 'flex';
-    } else {
-      btns.style.display = 'none';
-    }
-  }
-  function addSeat(e) {
-    e.preventDefault();
-    const seat = document.getElementById('newSeat').value;
-    fetch('/api/seats', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ seat: Number(seat) })
+      }
+      seat_updateBtns();
+      document.getElementById('seatError').style.display = 'none';
     })
+    .catch(e => {
+      document.getElementById('seatList').innerHTML = '<div style="color:#c00;text-align:center;width:100%;">座席の取得に失敗</div>';
+      document.getElementById('seatError').textContent = '座席の取得に失敗しました';
+      document.getElementById('seatError').style.display = '';
+    });
+}
+
+function seat_select(div, seat) {
+  seat_selected = seat;
+  document.querySelectorAll('.seat-item').forEach(d => d.classList.remove('selected'));
+  div.classList.add('selected');
+  seat_updateBtns();
+}
+
+function seat_updateBtns() {
+  const btns = document.getElementById('actionBtns');
+  if (seat_selected !== null) btns.style.display = 'flex';
+  else btns.style.display = 'none';
+}
+
+document.getElementById('addSeatForm').onsubmit = function(e) {
+  e.preventDefault();
+  const seat = document.getElementById('newSeat').value;
+  fetch('/api/seats', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ seat: Number(seat) })
+  })
     .then(res => res.json())
     .then(data => {
       if (data.success) {
         document.getElementById('newSeat').value = '';
-        selectedSeat = null;
-        reloadSeats();
+        seat_selected = null;
+        seat_reload();
       } else {
-        alert(data.error || '追加失敗');
+        document.getElementById('seatError').textContent = data.error || '追加失敗';
+        document.getElementById('seatError').style.display = '';
       }
     });
-  }
-  document.getElementById('editBtn').onclick = function() {
-    if (selectedSeat === null) return;
-    const newSeat = prompt(`座席 ${selectedSeat} を編集します。新しい番号を入力してください:`, selectedSeat);
-    if (newSeat && !isNaN(newSeat)) {
-      fetch(`/api/seats/${selectedSeat}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ seat: Number(newSeat) })
-      })
+};
+
+document.getElementById('editBtn').onclick = function() {
+  if (seat_selected === null) return;
+  const newSeat = prompt(`座席 ${seat_selected} を編集します。新しい番号を入力してください:`, seat_selected);
+  if (newSeat && !isNaN(newSeat)) {
+    fetch(`/api/seats/${seat_selected}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ seat: Number(newSeat) })
+    })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          selectedSeat = null;
-          reloadSeats();
+          seat_selected = null;
+          seat_reload();
         } else {
-          alert(data.error || '編集失敗');
+          document.getElementById('seatError').textContent = data.error || '編集失敗';
+          document.getElementById('seatError').style.display = '';
         }
       });
-    }
-  };
-  document.getElementById('deleteBtn').onclick = function() {
-    if (selectedSeat === null) return;
-    if (!confirm(`座席 ${selectedSeat} を削除しますか？`)) return;
-    fetch(`/api/seats/${selectedSeat}`, { method: 'DELETE' })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          selectedSeat = null;
-          reloadSeats();
-        } else {
-          alert(data.error || '削除失敗');
-        }
-      });
-  };
-  document.getElementById('sortOrder').addEventListener('change', reloadSeats);
-  reloadSeats();
+  }
+};
 
-  // コース・商品管理の初期化は既存のまま
-});
-</script>
-    </div>
-  </div>
-</section>
-
-<script>
-window.addEventListener('DOMContentLoaded', () => {
-  // タブ切り替え
-  document.querySelectorAll('.manage-tab').forEach(btn => {
-    btn.onclick = function() {
-      document.querySelectorAll('.manage-tab').forEach(b => b.classList.remove('active'));
-      this.classList.add('active');
-      document.getElementById('seatSection').hidden = true;
-      document.getElementById('courseSection').hidden = true;
-      document.getElementById('dishSection').hidden = true;
-      document.getElementById(this.dataset.target).hidden = false;
-    };
-  });
-  // 初期表示: 座席管理のみ表示
-  document.getElementById('seatSection').hidden = false;
-  document.getElementById('courseSection').hidden = true;
-  document.getElementById('dishSection').hidden = true;
-  reloadSeats();
-  reloadCourses();
-  reloadDishCourses();
-
-  // 商品管理JS
-  let selectedDish = null;
-  let currentCourse = '';
-  function reloadDishCourses(){
-      fetch('/api/courses')
-          .then(res=>res.json())
-          .then(courses=>{
-              const sel = document.getElementById('dishCourse');
-              sel.innerHTML = '<option value="">コース選択</option>';
-              courses.forEach(c=>{
-                  sel.innerHTML += `<option value="${c.id}">${c.name} (${c.id})</option>`;
-              });
-          });
-  }
-  function reloadDishes(){
-      const courseId = document.getElementById('dishCourse').value;
-      currentCourse = courseId;
-      if(!courseId){document.getElementById('dishList').innerHTML='';return;}
-      fetch(`/api/dishes/${courseId}`)
-          .then(res=>res.json())
-          .then(dishes=>{
-              const order = document.getElementById('dishSort').value;
-              if(order==='asc') dishes.sort((a,b)=>a.id.localeCompare(b.id));
-              else dishes.sort((a,b)=>b.id.localeCompare(a.id));
-              const dishList = document.getElementById('dishList');
-              dishList.innerHTML = '';
-              dishes.forEach(dish=>{
-                  const div = document.createElement('div');
-                  div.className = 'seat-item';
-                  div.textContent = `${dish.name} (${dish.id}) [${dish.category}]` + (dish.hidden ? ' [非表示]' : '');
-                  div.onclick = () => selectDish(div, dish);
-                  if(selectedDish && selectedDish.id===dish.id) div.classList.add('selected');
-                  dishList.appendChild(div);
-              });
-              updateDishBtns();
-          });
-  }
-  function selectDish(div, dish){
-      selectedDish = dish;
-      document.querySelectorAll('.dish-list .seat-item').forEach(d=>d.classList.remove('selected'));
-      div.classList.add('selected');
-      updateDishBtns();
-  }
-  function updateDishBtns(){
-      const btns = document.getElementById('dishActionBtns');
-      if(selectedDish) btns.style.display = 'flex';
-      else btns.style.display = 'none';
-  }
-  function addDish(e){
-      e.preventDefault();
-      if(!currentCourse){alert('コースを選択してください');return;}
-      const category = document.getElementById('newDishCategory').value.trim();
-      const id = document.getElementById('newDishId').value.trim();
-      const name = document.getElementById('newDishName').value.trim();
-      fetch(`/api/dishes/${currentCourse}`,{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({category,id,name})
-      })
-      .then(res=>res.json())
-      .then(data=>{
-          if(data.success){
-              document.getElementById('newDishCategory').value='';
-              document.getElementById('newDishId').value='';
-              document.getElementById('newDishName').value='';
-              selectedDish=null;
-              reloadDishes();
-          }else{
-              alert(data.error||'追加失敗');
-          }
-      });
-  }
-  document.getElementById('editDishBtn').onclick = function(){
-      if(!selectedDish||!currentCourse) return;
-      const newName = prompt('商品名を編集:',selectedDish.name);
-      if(newName){
-          fetch(`/api/dishes/${currentCourse}/${selectedDish.id}`,{
-              method:'PUT',
-              headers:{'Content-Type':'application/json'},
-              body:JSON.stringify({name:newName})
-          })
-          .then(res=>res.json())
-          .then(data=>{
-              if(data.success){selectedDish=null;reloadDishes();}
-              else alert(data.error||'編集失敗');
-          });
+document.getElementById('deleteBtn').onclick = function() {
+  if (seat_selected === null) return;
+  if (!confirm(`座席 ${seat_selected} を削除しますか？`)) return;
+  fetch(`/api/seats/${seat_selected}`, { method: 'DELETE' })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        seat_selected = null;
+        seat_reload();
+      } else {
+        document.getElementById('seatError').textContent = data.error || '削除失敗';
+        document.getElementById('seatError').style.display = '';
       }
-  };
-  document.getElementById('deleteDishBtn').onclick = function(){
-      if(!selectedDish||!currentCourse) return;
-      if(!confirm(`商品 ${selectedDish.name} (${selectedDish.id}) を削除しますか？`)) return;
-      fetch(`/api/dishes/${currentCourse}/${selectedDish.id}`,{method:'DELETE'})
-          .then(res=>res.json())
-          .then(data=>{
-              if(data.success){selectedDish=null;reloadDishes();}
-              else alert(data.error||'削除失敗');
-          });
-  };
-  document.getElementById('toggleDishBtn').onclick = function(){
-      if(!selectedDish||!currentCourse) return;
-      fetch(`/api/dishes/${currentCourse}/${selectedDish.id}`,{
-          method:'PUT',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({hidden:!selectedDish.hidden})
-      })
+    });
+};
+
+document.getElementById('sortOrder').addEventListener('change', seat_reload);
+
+// ======== コース管理 ========
+let course_selected = null;
+function course_reload() {
+  const order = document.getElementById('courseSort').value;
+  fetch(`/api/courses?order=${order}`)
+    .then(res => res.json())
+    .then(courses => {
+      const courseList = document.getElementById('courseList');
+      courseList.innerHTML = '';
+      if (!Array.isArray(courses) || courses.length === 0) {
+        courseList.innerHTML = '<div style="color:#888;text-align:center;width:100%;">コースがありません</div>';
+      } else {
+        courses.forEach(course => {
+          const div = document.createElement('div');
+          div.className = 'seat-item';
+          div.textContent = `${course.name} (${course.id})` + (course.hidden ? ' [非表示]' : '');
+          div.onclick = () => course_select(div, course);
+          if (course_selected && course_selected.id === course.id) div.classList.add('selected');
+          courseList.appendChild(div);
+        });
+      }
+      course_updateBtns();
+      document.getElementById('courseError').style.display = 'none';
+    })
+    .catch(e => {
+      document.getElementById('courseList').innerHTML = '<div style="color:#c00;text-align:center;width:100%;">コースの取得に失敗</div>';
+      document.getElementById('courseError').textContent = 'コースの取得に失敗しました';
+      document.getElementById('courseError').style.display = '';
+    });
+}
+
+function course_select(div, course) {
+  course_selected = course;
+  document.querySelectorAll('.course-list .seat-item').forEach(d => d.classList.remove('selected'));
+  div.classList.add('selected');
+  course_updateBtns();
+}
+
+function course_updateBtns() {
+  const btns = document.getElementById('courseActionBtns');
+  if(course_selected) btns.style.display = 'flex';
+  else btns.style.display = 'none';
+}
+
+document.getElementById('addCourseForm').onsubmit = function(e) {
+  e.preventDefault();
+  const id = document.getElementById('newCourseId').value.trim();
+  const name = document.getElementById('newCourseName').value.trim();
+  fetch('/api/courses', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, name })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById('newCourseId').value = '';
+        document.getElementById('newCourseName').value = '';
+        course_selected = null;
+        course_reload();
+        dish_reloadCourses();
+      } else {
+        document.getElementById('courseError').textContent = data.error || '追加失敗';
+        document.getElementById('courseError').style.display = '';
+      }
+    });
+};
+
+document.getElementById('editCourseBtn').onclick = function() {
+  if (!course_selected) return;
+  const newId = prompt(`コースIDを編集 (${course_selected.id}):`, course_selected.id);
+  const newName = prompt(`コース名を編集 (${course_selected.name}):`, course_selected.name);
+  if (newId !== null && newName !== null) {
+    fetch(`/api/courses/${course_selected.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: newId, name: newName })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          course_selected = null;
+          course_reload();
+          dish_reloadCourses();
+        } else {
+          document.getElementById('courseError').textContent = data.error || '編集失敗';
+          document.getElementById('courseError').style.display = '';
+        }
+      });
+  }
+};
+
+document.getElementById('deleteCourseBtn').onclick = function() {
+  if (!course_selected) return;
+  if (!confirm(`コース ${course_selected.name} (${course_selected.id}) を削除しますか？`)) return;
+  fetch(`/api/courses/${course_selected.id}`, { method: 'DELETE' })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        course_selected = null;
+        course_reload();
+        dish_reloadCourses();
+      } else {
+        document.getElementById('courseError').textContent = data.error || '削除失敗';
+        document.getElementById('courseError').style.display = '';
+      }
+    });
+};
+
+document.getElementById('toggleCourseBtn').onclick = function() {
+  if (!course_selected) return;
+  fetch(`/api/courses/${course_selected.id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ hidden: !course_selected.hidden })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        course_selected = null;
+        course_reload();
+        dish_reloadCourses();
+      } else {
+        document.getElementById('courseError').textContent = data.error || '切替失敗';
+        document.getElementById('courseError').style.display = '';
+      }
+    });
+};
+
+document.getElementById('courseSort').addEventListener('change', course_reload);
+
+// ======== 商品管理 ========
+let dish_selected = null;
+let dish_currentCourse = '';
+
+function dish_reloadCourses(){
+  fetch('/api/courses')
+    .then(res=>res.json())
+    .then(courses=>{
+      const sel = document.getElementById('dishCourse');
+      sel.innerHTML = '<option value="">コース選択</option>';
+      if(Array.isArray(courses)){
+        courses.forEach(c=>{
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = `${c.name} (${c.id})`;
+          sel.appendChild(opt);
+        });
+      }
+      dish_reload();
+    })
+    .catch(e => {
+      const sel = document.getElementById('dishCourse');
+      sel.innerHTML = '<option disabled>コース取得失敗</option>';
+      document.getElementById('dishList').innerHTML = '';
+    });
+}
+
+function dish_reload(){
+  const courseId = document.getElementById('dishCourse').value;
+  dish_currentCourse = courseId;
+  if(!courseId){document.getElementById('dishList').innerHTML='';return;}
+  const order = document.getElementById('dishSort').value;
+  fetch(`/api/dishes/${courseId}?order=${order}`)
+    .then(res=>res.json())
+    .then(dishes=>{
+      const dishList = document.getElementById('dishList');
+      dishList.innerHTML = '';
+      if(!Array.isArray(dishes) || dishes.length===0){
+        dishList.innerHTML = '<div style="color:#888;text-align:center;width:100%;">商品がありません</div>';
+      }else{
+        dishes.forEach(dish=>{
+          const div = document.createElement('div');
+          div.className = 'seat-item';
+          div.textContent = `${dish.name} (${dish.id}) [${dish.category}]` + (dish.hidden ? ' [非表示]' : '');
+          div.onclick = () => dish_select(div, dish);
+          if(dish_selected && dish_selected.id===dish.id) div.classList.add('selected');
+          dishList.appendChild(div);
+        });
+      }
+      dish_updateBtns();
+      document.getElementById('dishError').style.display = 'none';
+    })
+    .catch(e => {
+      document.getElementById('dishList').innerHTML = '<div style="color:#c00;text-align:center;width:100%;">商品の取得に失敗</div>';
+      document.getElementById('dishError').textContent = '商品の取得に失敗しました';
+      document.getElementById('dishError').style.display = '';
+    });
+}
+
+function dish_select(div, dish){
+  dish_selected = dish;
+  document.querySelectorAll('.dish-list .seat-item').forEach(d=>d.classList.remove('selected'));
+  div.classList.add('selected');
+  dish_updateBtns();
+}
+
+function dish_updateBtns(){
+  const btns = document.getElementById('dishActionBtns');
+  if(dish_selected) btns.style.display = 'flex';
+  else btns.style.display = 'none';
+}
+
+document.getElementById('addDishForm').onsubmit = function(e){
+  e.preventDefault();
+  if(!dish_currentCourse){document.getElementById('dishError').textContent='コースを選択してください';document.getElementById('dishError').style.display='';return;}
+  const category = document.getElementById('newDishCategory').value.trim();
+  const id = document.getElementById('newDishId').value.trim();
+  const name = document.getElementById('newDishName').value.trim();
+  fetch(`/api/dishes/${dish_currentCourse}`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({category,id,name})
+  })
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.success){
+        document.getElementById('newDishCategory').value = '';
+        document.getElementById('newDishId').value = '';
+        document.getElementById('newDishName').value = '';
+        dish_selected = null;
+        dish_reload();
+      }else{
+        document.getElementById('dishError').textContent = data.error || '追加失敗';
+        document.getElementById('dishError').style.display = '';
+      }
+    });
+};
+
+document.getElementById('editDishBtn').onclick = function(){
+  if(!dish_selected||!dish_currentCourse) return;
+  const newName = prompt('商品名を編集:',dish_selected.name);
+  if(newName){
+    fetch(`/api/dishes/${dish_currentCourse}/${dish_selected.id}`,{
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:newName})
+    })
       .then(res=>res.json())
       .then(data=>{
-          if(data.success){selectedDish=null;reloadDishes();}
-          else alert(data.error||'切替失敗');
+        if(data.success){
+          dish_selected = null;
+          dish_reload();
+        }else{
+          document.getElementById('dishError').textContent = data.error || '編集失敗';
+          document.getElementById('dishError').style.display = '';
+        }
       });
-  };
-  document.getElementById('dishCourse').addEventListener('change',reloadDishes);
-  document.getElementById('dishSort').addEventListener('change',reloadDishes);
-});
+  }
+};
+
+document.getElementById('deleteDishBtn').onclick = function(){
+  if(!dish_selected||!dish_currentCourse) return;
+  if(!confirm(`商品 ${dish_selected.name} (${dish_selected.id}) を削除しますか？`)) return;
+  fetch(`/api/dishes/${dish_currentCourse}/${dish_selected.id}`,{method:'DELETE'})
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.success){
+        dish_selected = null;
+        dish_reload();
+      }else{
+        document.getElementById('dishError').textContent = data.error || '削除失敗';
+        document.getElementById('dishError').style.display = '';
+      }
+    });
+};
+
+document.getElementById('toggleDishBtn').onclick = function(){
+  if(!dish_selected||!dish_currentCourse) return;
+  fetch(`/api/dishes/${dish_currentCourse}/${dish_selected.id}`,{
+    method:'PUT',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({hidden:!dish_selected.hidden})
+  })
+    .then(res=>res.json())
+    .then(data=>{
+      if(data.success){dish_selected=null;dish_reload();}
+      else{
+        document.getElementById('dishError').textContent = data.error || '切替失敗';
+        document.getElementById('dishError').style.display = '';
+      }
+    });
+};
+
+document.getElementById('dishCourse').addEventListener('change',dish_reload);
+document.getElementById('dishSort').addEventListener('change',dish_reload);
+
+// 初期化
+window.onload = function(){
+  showSection('seatSection');  // 初期表示は座席管理
+  seat_reload();
+  course_reload();
+  dish_reloadCourses();
+};
 </script>
-</body>
-</html>
-    <!-- 旧UI・旧JS完全削除済み。新UIのみ残しています。 -->
+
+<!-- 下部ナビゲーション -->
+<footer class="bottom-nav-footer">
+  <nav class="bottom-nav">
+    <a href="/" class="bottom-nav-link">座席選択</a>
+    <a href="/staff" class="bottom-nav-link">スタッフ</a>
+    <a href="/settings" class="bottom-nav-link">設定</a>
+  </nav>
+</footer>
 </body>
 </html>

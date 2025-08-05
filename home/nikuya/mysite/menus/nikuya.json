@@ -1,7 +1,7 @@
 {
-    "course_name": "肉屋の台所コース",
+    "course_name": "肉屋の台所コース/Nikuya Course",
     "price": 6000,
-    "description": "黒毛和牛が食べ放題に！ソフトドリンク飲み放題つきの焼肉食べ放題コース！",
+    "description": "黒毛和牛が食べ放題に！ソフトドリンク飲み放題つきの焼肉食べ放題コース！Black wagyu all-you-can-eat with free refill soft drinks!アルコール飲み放題1500円/Free refill alcohol is 1,500 yen per person.",
     "order_time": 80,
     "seat_time": 20,
   "dishes_": {
