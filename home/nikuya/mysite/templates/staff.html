@@ -8,13 +8,13 @@
 </head>
 <body>
     <div class="staff-container">
-        <h1>Staff Page</h1>
+        <h1>Staff</h1>
         
 
         <div class="orders-section">
             <div class="orders-header">
-                <h2>New Orders</h2>
-                <button class="reset-orders-btn" onclick="resetOrders()">Reset Order History</button>
+                <h2>Order</h2>
+                <button class="reset-orders-btn" onclick="resetOrders()">Reset History</button>
             </div>
             <div class="orders-list" id="orders-list">
                 {% for order in orders %}
@@ -39,7 +39,7 @@
         </div>
 
         <div class="timer-management-section">
-            <h2>Timer Management</h2>
+            <h2>Time</h2>
             <div class="timer-grid" id="timer-grid">
                 <!-- Timer information will be updated by JavaScript -->
             </div>

@@ -8,12 +8,11 @@
 </head>
 <body>
     <div class="seat-selection-header">
-        <h1>Select Your Seat</h1>
-        <p>Please select your seat</p>
+        <h1>Your Seat Number</h1>
     </div>
     <div class="seats-list">
         {% for seat in seats %}
-            <a class="seat-link" href="/menu/{{ seat }}">Seat {{ seat }}</a>
+            <a class="seat-link" href="/menu/{{ seat }}"> {{ seat }}</a>
         {% endfor %}
     </div>
 </body>

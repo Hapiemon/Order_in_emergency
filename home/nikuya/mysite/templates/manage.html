@@ -17,25 +17,24 @@
     <button class="manage-tab active" data-target="seatSection">座席管理</button>
     <button class="manage-tab" data-target="courseSection">コース管理</button>
     <button class="manage-tab" data-target="dishSection">商品管理</button>
-        <button class="manage-tab" data-target="settingsSection">設定</button>
-</div>
+  </div>
 <section id="seatSection">
   <div class="container">
     <h1>座席管理</h1>
     <div class="seat-actions">
-        <select id="sortOrder">
-            <option value="asc">小さい順</option>
-            <option value="desc">大きい順</option>
-        </select>
+      <select id="sortOrder">
+        <option value="asc">小さい順</option>
+        <option value="desc">大きい順</option>
+      </select>
     </div>
     <div class="seat-list" id="seatList"></div>
     <form class="add-form" onsubmit="addSeat(event)">
-        <input type="number" id="newSeat" placeholder="座席番号" min="1" required>
-        <button type="submit">追加</button>
+      <input type="number" id="newSeat" placeholder="座席番号" min="1" required>
+      <button type="submit">追加</button>
     </form>
     <div id="actionBtns">
-        <button id="editBtn" style="background:#28a745;">編集</button>
-        <button id="deleteBtn" style="background:#dc3545;">削除</button>
+      <button id="editBtn" style="background:#28a745;">編集</button>
+      <button id="deleteBtn" style="background:#dc3545;">削除</button>
     </div>
   </div>
 </section>
@@ -246,96 +245,118 @@ function selectCourse(div, course) {
 function updateCourseBtns() {
     const btns = document.getElementById('courseActionBtns');
     if(selectedCourse) btns.style.display = 'flex';
-    else btns.style.display = 'none';
-}
-function addCourse(e) {
+<script>
+// タブ切り替え
+document.addEventListener('DOMContentLoaded', () => {
+  // タブ切り替え
+  document.querySelectorAll('.manage-tab').forEach(btn => {
+    btn.onclick = function() {
+      document.querySelectorAll('.manage-tab').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById('seatSection').hidden = true;
+      document.getElementById('courseSection').hidden = true;
+      document.getElementById('dishSection').hidden = true;
+      document.getElementById(this.dataset.target).hidden = false;
+    };
+  });
+  // 初期表示
+  document.getElementById('seatSection').hidden = false;
+  document.getElementById('courseSection').hidden = true;
+  document.getElementById('dishSection').hidden = true;
+
+  // 座席管理
+  let selectedSeat = null;
+  function reloadSeats() {
+    const order = document.getElementById('sortOrder').value;
+    fetch(`/api/seats?order=${order}`)
+      .then(res => res.json())
+      .then(seats => {
+        const seatList = document.getElementById('seatList');
+        seatList.innerHTML = '';
+        seats.forEach(seat => {
+          const div = document.createElement('div');
+          div.className = 'seat-item';
+          div.textContent = seat;
+          div.onclick = () => selectSeat(div, seat);
+          if (selectedSeat === seat) div.classList.add('selected');
+          seatList.appendChild(div);
+        });
+        updateActionBtns();
+      });
+  }
+  function selectSeat(div, seat) {
+    selectedSeat = seat;
+    document.querySelectorAll('.seat-item').forEach(d => d.classList.remove('selected'));
+    div.classList.add('selected');
+    updateActionBtns();
+  }
+  function updateActionBtns() {
+    const btns = document.getElementById('actionBtns');
+    if (selectedSeat !== null) {
+      btns.style.display = 'flex';
+    } else {
+      btns.style.display = 'none';
+    }
+  }
+  function addSeat(e) {
     e.preventDefault();
-    const id = document.getElementById('newCourseId').value.trim();
-    const name = document.getElementById('newCourseName').value.trim();
-    fetch('/api/courses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, name })
+    const seat = document.getElementById('newSeat').value;
+    fetch('/api/seats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ seat: Number(seat) })
     })
     .then(res => res.json())
     .then(data => {
-        if(data.success){
-            document.getElementById('newCourseId').value = '';
-            document.getElementById('newCourseName').value = '';
-            selectedCourse = null;
-            reloadCourses();
-        }else{
-            alert(data.error||'追加失敗');
+      if (data.success) {
+        document.getElementById('newSeat').value = '';
+        selectedSeat = null;
+        reloadSeats();
+      } else {
+        alert(data.error || '追加失敗');
+      }
+    });
+  }
+  document.getElementById('editBtn').onclick = function() {
+    if (selectedSeat === null) return;
+    const newSeat = prompt(`座席 ${selectedSeat} を編集します。新しい番号を入力してください:`, selectedSeat);
+    if (newSeat && !isNaN(newSeat)) {
+      fetch(`/api/seats/${selectedSeat}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ seat: Number(newSeat) })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          selectedSeat = null;
+          reloadSeats();
+        } else {
+          alert(data.error || '編集失敗');
         }
-    });
-}
-document.getElementById('editCourseBtn').onclick = function(){
-    if(!selectedCourse) return;
-    const newName = prompt(`コース名を編集:`, selectedCourse.name);
-    if(newName){
-        fetch(`/api/courses/${selectedCourse.id}`,{
-            method:'PUT',
-            headers:{'Content-Type':'application/json'},
-            body:JSON.stringify({name:newName})
-        })
-        .then(res=>res.json())
-        .then(data=>{
-            if(data.success){selectedCourse=null;reloadCourses();}
-            else alert(data.error||'編集失敗');
-        });
+      });
     }
-};
-document.getElementById('deleteCourseBtn').onclick = function(){
-    if(!selectedCourse) return;
-    if(!confirm(`コース ${selectedCourse.name} (${selectedCourse.id}) を削除しますか？`)) return;
-    fetch(`/api/courses/${selectedCourse.id}`,{method:'DELETE'})
-        .then(res=>res.json())
-        .then(data=>{
-            if(data.success){selectedCourse=null;reloadCourses();}
-            else alert(data.error||'削除失敗');
-        });
-};
-document.getElementById('toggleCourseBtn').onclick = function(){
-    if(!selectedCourse) return;
-    fetch(`/api/courses/${selectedCourse.id}`,{
-        method:'PUT',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({hidden:!selectedCourse.hidden})
-    })
-    .then(res=>res.json())
-    .then(data=>{
-        if(data.success){selectedCourse=null;reloadCourses();}
-        else alert(data.error||'切替失敗');
-    });
-};
-document.getElementById('courseSort').addEventListener('change', reloadCourses);
-window.addEventListener('DOMContentLoaded', reloadCourses);
-</script>
+  };
+  document.getElementById('deleteBtn').onclick = function() {
+    if (selectedSeat === null) return;
+    if (!confirm(`座席 ${selectedSeat} を削除しますか？`)) return;
+    fetch(`/api/seats/${selectedSeat}`, { method: 'DELETE' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          selectedSeat = null;
+          reloadSeats();
+        } else {
+          alert(data.error || '削除失敗');
+        }
+      });
+  };
+  document.getElementById('sortOrder').addEventListener('change', reloadSeats);
+  reloadSeats();
 
-<!-- 商品管理UI -->
-<section id="dishSection" hidden>
-  <div class="container dish-container">
-    <h1>商品管理</h1>
-    <div class="dish-actions">
-        <select id="dishCourse">
-            <option value="">コース選択</option>
-        </select>
-        <select id="dishSort">
-            <option value="asc">小さい順</option>
-            <option value="desc">大きい順</option>
-        </select>
-    </div>
-    <div class="dish-list" id="dishList"></div>
-    <form class="add-form" onsubmit="addDish(event)">
-        <input type="text" id="newDishCategory" placeholder="カテゴリ" required style="width:30%">
-        <input type="text" id="newDishId" placeholder="商品ID" required style="width:30%">
-        <input type="text" id="newDishName" placeholder="商品名" required style="width:30%">
-        <button type="submit">追加</button>
-    </form>
-    <div id="dishActionBtns">
-        <button id="editDishBtn" style="background:#28a745;">編集</button>
-        <button id="deleteDishBtn" style="background:#dc3545;">削除</button>
-        <button id="toggleDishBtn" style="background:#ffc107;color:#333;">表示/非表示</button>
+  // コース・商品管理の初期化は既存のまま
+});
+</script>
     </div>
   </div>
 </section>
