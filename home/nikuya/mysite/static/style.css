@@ -91,10 +91,76 @@ h1 {
     background-color: #27ae60;
 }
 
+/* select_course.html コース選択画面用 */
+.course-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.course-card {
+  background: #f8f8f8;
+  border-radius: 8px;
+  padding: 18px 22px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.course-name {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 2px;
+}
+.price {
+  color: #27ae60;
+  font-size: 1.1em;
+  margin-bottom: 2px;
+}
+.description {
+  color: #555;
+  font-size: 0.98em;
+  margin-bottom: 6px;
+}
+.select-button {
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 24px;
+  font-size: 1.05em;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 8px;
+}
+.select-button:hover {
+  background: #217dbb;
+}
+.error-message {
+  color: #e74c3c;
+  font-size: 0.97em;
+  margin-top: 8px;
+  display: none;
+}
+@media (max-width: 600px) {
+  .course-container {
+    padding: 8px;
+  }
+  .course-card {
+    padding: 8px 6px;
+  }
+}
+
 /* 席選択画面のスタイル */
 .seat-selection-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 24px;
 }
 
 .seat-selection-header h1 {
@@ -114,23 +180,27 @@ h1 {
     padding: 20px;
 }
 
+.seats-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 16px;
+}
+
 .seat-link {
-    display: block;
-    padding: 20px;
-    background: linear-gradient(135deg, #3498db, #2ecc71);
-    color: white;
+    display: inline-block;
+    background: #1976d2;
+    color: #fff;
+    border-radius: 6px;
+    padding: 16px 24px;
+    font-size: 1.2em;
     text-decoration: none;
-    text-align: center;
-    border-radius: 10px;
-    font-size: 1.5em;
-    font-weight: bold;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: background 0.2s;
 }
 
 .seat-link:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    background: #1251a3;
 }
 
 /* メニュー画面のスタイル */
@@ -390,17 +460,142 @@ h1 {
 
 /* スタッフ画面のスタイル */
 .staff-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-.orders-section, .expired-section {
-    background-color: white;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+.orders-section {
+  margin-bottom: 40px;
+}
+
+.orders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.reset-orders-btn {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 16px;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.reset-orders-btn:hover {
+  background: #c0392b;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.order-item {
+  background: #f8f8f8;
+  border-radius: 6px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  cursor: pointer;
+  transition: background 0.2s;
+  border-left: 4px solid #3498db;
+}
+
+.order-item.order-completed {
+  opacity: 0.5;
+  border-left: 4px solid #aaa;
+  background: #eaeaea;
+}
+
+.order-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.order-time {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #3498db;
+  min-width: 48px;
+}
+
+.order-details {
+  flex: 1;
+}
+
+.seat-and-course {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.menu-item-line {
+  font-size: 0.98em;
+  color: #333;
+}
+
+.timer-management-section {
+  margin-top: 32px;
+}
+
+.timer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.timer-card {
+  background: #f4f9ff;
+  border-radius: 8px;
+  padding: 16px 12px;
+  box-shadow: 0 1px 3px rgba(52,152,219,0.07);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border-left: 4px solid #2980b9;
+}
+
+.timer-card .seat-number {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #2980b9;
+}
+
+.timer-card .timer-value {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #e67e22;
+  margin: 8px 0 0 0;
+}
+
+.timer-card .timer-status {
+  font-size: 0.95em;
+  color: #888;
+  margin-top: 4px;
+}
+
+@media (max-width: 600px) {
+  .staff-container {
+    padding: 8px;
+  }
+  .orders-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .timer-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* 注文リストのスタイル */
@@ -1253,16 +1448,353 @@ h1 {
     background-color: #a93226;
 }
 
-/* モバイル対応 */
-@media (max-width: 768px) {
-    .orders-header {
-        flex-direction: column;
-        gap: 15px;
-        align-items: stretch;
-    }
-    
-    .reset-orders-btn {
-        width: 100%;
-        padding: 12px;
-    }
+/* === 管理画面（manage.html）用 === */
+.container {
+    max-width: 480px;
+    margin: 24px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px #0001;
+    padding: 20px;
+}
+.seat-list, .course-list, .dish-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+.seat-item {
+    background: #eee;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+}
+.seat-item.selected {
+    background: #cce5ff;
+}
+.seat-actions, .course-actions, .dish-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    justify-content: center;
+}
+button, select, input[type=number], input[type=text] {
+    font-size: 1em;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    padding: 6px 12px;
+    background: #fff;
+}
+button {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+button:hover {
+    background: #0056b3;
+}
+.add-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    justify-content: center;
+}
+
+/* === 管理画面ナビゲーション・タブ・アクションボタン === */
+.main-nav {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin: 16px 0;
+}
+.main-nav-link {
+    padding: 6px 16px;
+    border-radius: 4px;
+    color: #fff;
+    text-decoration: none;
+    background: #888;
+    transition: background 0.2s;
+}
+.main-nav-link.nav-seat { background: #1976d2; }
+.main-nav-link.nav-staff { background: #388e3c; }
+.main-nav-link.nav-settings { background: #616161; }
+.main-nav-link:hover { filter: brightness(0.9); }
+
+#manage-tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+.manage-tab {
+    padding: 6px 16px;
+    border-radius: 4px;
+    border: none;
+    background: #eee;
+    color: #333;
+    cursor: pointer;
+    font-size: 1em;
+    margin: 0 2px;
+    transition: background 0.2s;
+}
+.manage-tab.active {
+    background: #1976d2;
+    color: #fff;
+}
+
+#actionBtns, #courseActionBtns, #dishActionBtns {
+    position: fixed;
+    right: 16px;
+    z-index: 10;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+}
+#actionBtns { bottom: 16px; }
+#courseActionBtns { bottom: 96px; }
+#dishActionBtns { bottom: 176px; }
+
+.course-container, .dish-container {
+    margin-top: 32px;
+}
+
+/* === 設定画面（settings.html）用 === */
+.settings-container {
+    max-width: 480px;
+    margin: 24px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px #0001;
+    padding: 20px;
+}
+.tabs {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+.tab-btn {
+    padding: 6px 16px;
+    border-radius: 4px;
+    border: none;
+    background: #eee;
+    color: #333;
+    cursor: pointer;
+    font-size: 1em;
+    margin: 0 2px;
+    transition: background 0.2s;
+}
+.tab-btn.active {
+    background: #1976d2;
+    color: #fff;
+}
+.tab-content {
+    margin-bottom: 20px;
+}
+.hours-form label {
+    display: block;
+    margin-bottom: 8px;
+}
+.hours-form input[type="time"] {
+    margin-left: 8px;
+    font-size: 1em;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    padding: 4px 8px;
+}
+.hours-form button {
+    margin-top: 8px;
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 16px;
+    cursor: pointer;
+}
+.website-update-link {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #1976d2;
+    color: #fff;
+    border-radius: 4px;
+    text-decoration: none;
+    margin-top: 8px;
+}
+.website-update-link:hover {
+    background: #1251a3;
+}
+
+/* === 共通案内・終了画面（checkout_notice, order_closed, closed）用 === */
+.notice-container, .closed-container {
+    max-width: 420px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px #0002;
+    padding: 32px 20px;
+    text-align: center;
+}
+.notice-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.seat-info h2 {
+    margin: 12px 0 8px 0;
+    font-size: 1.3em;
+}
+.message .main-message {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 12px 0 4px 0;
+}
+.message .sub-message {
+    color: #666;
+    margin: 0 0 8px 0;
+}
+.actions {
+    margin: 18px 0 8px 0;
+}
+.button.primary {
+    background: #1976d2;
+    color: #fff;
+    border-radius: 4px;
+    padding: 8px 20px;
+    text-decoration: none;
+    font-size: 1em;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.button.primary:hover {
+    background: #1251a3;
+}
+.staff-note {
+    margin-top: 16px;
+    color: #888;
+    font-size: 0.95em;
+}
+.timer-info {
+    font-size: 1.1em;
+    color: #1976d2;
+    margin-top: 12px;
+}
+.timer-expired {
+    color: #e74c3c;
+    font-weight: bold;
+    margin-top: 12px;
+}
+
+/* menu.html メニュー画面用 */
+.menu-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-bottom: 32px;
+}
+.menu-item {
+  background: #f8f8f8;
+  border-radius: 6px;
+  padding: 14px 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+.menu-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1em;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+.menu-item-name {
+  color: #222;
+}
+.menu-item-price {
+  color: #27ae60;
+}
+.menu-item-desc {
+  font-size: 0.97em;
+  color: #555;
+  margin-bottom: 8px;
+}
+.menu-item-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.decrement-btn, .increment-btn {
+  background: #eee;
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  font-size: 1.2em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.decrement-btn:hover, .increment-btn:hover {
+  background: #d0e6fa;
+}
+.quantity {
+  min-width: 24px;
+  text-align: center;
+  font-size: 1.1em;
+  font-weight: bold;
+}
+.menu-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+.order-btn {
+  background: #3498db;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 24px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.order-btn:hover {
+  background: #217dbb;
+}
+.back-btn {
+  background: #eee;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 24px;
+  font-size: 1.1em;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.back-btn:hover {
+  background: #ccc;
+}
+@media (max-width: 600px) {
+  .menu-container {
+    padding: 8px;
+  }
+  .menu-item {
+    padding: 8px 6px;
+  }
+  .menu-actions {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
 }
