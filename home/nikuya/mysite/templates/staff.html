@@ -73,10 +73,9 @@
         ];
         
         // 音声エレメントを動的に作成
-        soundFiles.forEach(fn => {
-            const id = fn.replace(/\.mp3$/,'').replace(/[^\w\-]/g,'_');
+        soundFiles.forEach((fn, index) => {
             const audio = document.createElement('audio');
-            audio.id = id;
+            audio.id = 'sound' + (index + 1);
             audio.src = `/static/sounds/${fn}`;
             document.body.appendChild(audio);
         });
@@ -95,13 +94,24 @@
 
         // サウンドを再生する関数
         function playSound(type) {
+            console.log('Trying to play sound:', type);
             const soundId = settings.sounds[type];
+            console.log('Sound ID:', soundId);
             if (soundId) {
                 const sound = document.getElementById(soundId);
+                console.log('Sound element:', sound);
                 if (sound) {
                     sound.currentTime = 0;
-                    sound.play();
+                    sound.play().then(() => {
+                        console.log('Sound played successfully');
+                    }).catch(error => {
+                        console.error('Error playing sound:', error);
+                    });
+                } else {
+                    console.error('Sound element not found:', soundId);
                 }
+            } else {
+                console.error('Sound ID not found for type:', type);
             }
         }
 
@@ -110,8 +120,10 @@
             try {
                 const response = await fetch('/api/settings');
                 const data = await response.json();
+                console.log('Staff page: Settings loaded:', data);
                 if (data.sounds) {
                     settings.sounds = data.sounds;
+                    console.log('Staff page: Sound settings applied:', settings.sounds);
                 }
             } catch (error) {
                 console.error('Error loading settings:', error);

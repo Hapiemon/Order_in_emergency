@@ -9,6 +9,11 @@
   position: relative;
 }
 
+/* === 改行処理用スタイル === */
+.course-name, .description, h1, h2.course-name {
+  white-space: pre-line;
+}
+
 .section-nav {
   display: flex;
   justify-content: center;

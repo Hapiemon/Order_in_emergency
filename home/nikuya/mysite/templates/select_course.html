@@ -12,9 +12,9 @@
         {% for course_id, course_data in courses.items() %}
             {% if not course_data.hidden %}
             <div class="course-card">
-                <h2 class="course-name">{{ course_data.course_name }}</h2>
+                <h2 class="course-name">{{ course_data.course_name|replace('/', '<br>')|safe }}</h2>
                 <p class="price">{{ "{:,}".format(course_data.price) }} yen</p>
-                <p class="description">{{ course_data.description }}</p>
+                <p class="description">{{ course_data.description|replace('/', '<br>')|safe }}</p>
                 <form class="course-form" onsubmit="event.preventDefault(); return false;">
                     <input type="hidden" name="seat" value="{{ seat }}">
                     <input type="hidden" name="course_name" value="{{ course_id }}">

@@ -164,9 +164,9 @@
 </head>
 <body>
     <header class="menu-header">
-        <h1>{{ course.course_name }}</h1>
+        <h1>{{ course.course_name|replace('/', '<br>')|safe }}</h1>
         <p class="price">Price: {{ course.price }} yen</p>
-        <p class="description">{{ course.description }}</p>
+        <p class="description">{{ course.description|replace('/', '<br>')|safe }}</p>
     </header>
 
     <div class="timer-container">
